@@ -1,11 +1,11 @@
 {
-  "name": "recoai-ts-sdk",
-  "version": "1.0.0",
+  "name": "recoai-typescript-sdk",
+  "version": "0.0.1",
   "description": "RecoAI SDK for Javascript",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
   "module": "build/module/index.js",
-  "repository": "https://github.com/pjankiewicz/recoai-ts-sdk",
+  "repository": "https://github.com/recoai/recoai-ts-sdk",
   "license": "MIT",
   "keywords": [],
   "scripts": {
