@@ -8,6 +8,7 @@ import {
   LocationEnum,
   UserInfo,
   LocationObject,
+  Convert,
 } from './models';
 
 export interface PlacementConfig {
@@ -25,7 +26,7 @@ export interface PlacementConfig {
 }
 
 function injectRecommendations(config: PlacementConfig, data: RecoShow) {
-  var renderedHTML = Sqrl.render(config.template, data.items);
+  var renderedHTML = Sqrl.render(config.template, data);
   if (config.inject_where === 'after') {
     $(config.element_selector).after(renderedHTML);
   } else if (config.inject_where == 'append') {
@@ -64,9 +65,9 @@ function handlePlacement(apiSettings: APISettings, config: PlacementConfig) {
       timeout: 2000,
       error: function () {},
       success: function (data) {
-        var dataParsed: RecoShow = JSON.parse(data);
-        if (dataParsed.items.length > 0) {
-          injectRecommendations(config, dataParsed);
+        let recoShow = Convert.toRecoShow(data.response.RecoShow);
+        if (recoShow.items.length > 0) {
+          injectRecommendations(config, recoShow);
         }
       },
     });

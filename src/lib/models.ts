@@ -393,7 +393,6 @@ export interface RateProduct {
 }
 
 export interface RecoRequest {
-    content?:        null | string;
     event_detail?:   null | EventDetail;
     event_time:      number;
     event_type:      EventType;
@@ -1122,7 +1121,6 @@ const typeMap: any = {
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
     "RecoRequest": o([
-        { json: "content", js: "content", typ: u(undefined, u(null, "")) },
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
         { json: "event_time", js: "event_time", typ: 0 },
         { json: "event_type", js: "event_type", typ: r("EventType") },
