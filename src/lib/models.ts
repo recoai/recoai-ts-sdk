@@ -440,6 +440,7 @@ export interface RecoShow {
 
 export interface ProductDetailsRecoShow {
     canonical_product_uri?: null | string;
+    categories?:            Array<string[]> | null;
     currency_code:          Currency;
     exact_price:            ExactPrice;
     id:                     string;
@@ -1157,6 +1158,7 @@ const typeMap: any = {
     ], "any"),
     "ProductDetailsRecoShow": o([
         { json: "canonical_product_uri", js: "canonical_product_uri", typ: u(undefined, u(null, "")) },
+        { json: "categories", js: "categories", typ: u(undefined, u(a(a("")), null)) },
         { json: "currency_code", js: "currency_code", typ: r("Currency") },
         { json: "exact_price", js: "exact_price", typ: r("ExactPrice") },
         { json: "id", js: "id", typ: "" },
