@@ -17,12 +17,13 @@ export interface PlacementConfig {
   // after, before
   inject_where: string;
   location: () => LocationEnum | LocationObject;
-  filter: () => boolean;
+  condition: () => boolean;
   n_items: number;
   name?: null | string;
   template: string;
   api_endpoint: string;
   url_prefix: string;
+  additional_uri_params?: null | object;
 }
 
 function injectRecommendations(config: PlacementConfig, data: RecoShow) {
@@ -38,7 +39,10 @@ function injectRecommendations(config: PlacementConfig, data: RecoShow) {
 
 function handlePlacement(apiSettings: APISettings, config: PlacementConfig) {
   // make sure we are on the requested domain
-  if (!window.location.href.startsWith(config.url_prefix)) {
+  if (
+    !window.location.href.startsWith(config.url_prefix) ||
+    !config.condition()
+  ) {
     return;
   }
 

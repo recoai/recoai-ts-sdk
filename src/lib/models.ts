@@ -393,13 +393,14 @@ export interface RateProduct {
 }
 
 export interface RecoRequest {
-    event_detail?:   null | EventDetail;
-    event_time:      number;
-    event_type:      EventType;
-    location:        LocationEnum | LocationObject;
-    n_items:         number;
-    placement_name?: null | string;
-    user_info:       UserInfo;
+    additional_uri_params?: { [key: string]: string } | null;
+    event_detail?:          null | EventDetail;
+    event_time:             number;
+    event_type:             EventType;
+    location:               LocationEnum | LocationObject;
+    n_items:                number;
+    placement_name?:        null | string;
+    user_info:              UserInfo;
 }
 
 export enum LocationEnum {
@@ -427,15 +428,16 @@ export interface SearchInfo {
 }
 
 export interface RecoShow {
-    event_detail?:   null | EventDetail;
-    event_time:      number;
-    event_type:      EventType;
-    experiment_id?:  null | string;
-    items:           ProductDetailsRecoShow[];
-    location:        LocationEnum | LocationObject;
-    placement_name?: null | string;
-    rec_id:          string;
-    user_info:       UserInfo;
+    additional_uri_params?: { [key: string]: string } | null;
+    event_detail?:          null | EventDetail;
+    event_time:             number;
+    event_type:             EventType;
+    experiment_id?:         null | string;
+    items:                  ProductDetailsRecoShow[];
+    location:               LocationEnum | LocationObject;
+    placement_name?:        null | string;
+    rec_id:                 string;
+    user_info:              UserInfo;
 }
 
 export interface ProductDetailsRecoShow {
@@ -1122,6 +1124,7 @@ const typeMap: any = {
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
     "RecoRequest": o([
+        { json: "additional_uri_params", js: "additional_uri_params", typ: u(undefined, u(m(""), null)) },
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
         { json: "event_time", js: "event_time", typ: 0 },
         { json: "event_type", js: "event_type", typ: r("EventType") },
@@ -1146,6 +1149,7 @@ const typeMap: any = {
         { json: "query", js: "query", typ: u(undefined, u(null, "")) },
     ], "any"),
     "RecoShow": o([
+        { json: "additional_uri_params", js: "additional_uri_params", typ: u(undefined, u(m(""), null)) },
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
         { json: "event_time", js: "event_time", typ: 0 },
         { json: "event_type", js: "event_type", typ: r("EventType") },
