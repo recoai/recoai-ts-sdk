@@ -1,6 +1,6 @@
 // To parse this data:
 //
-//   import { Convert, AddToCart, AddToList, APISettings, CategoryPageView, CheckoutStart, DetailProductView, HomePageView, ImageInteraction, ListView, OtherInteraction, PageVisit, PurchaseComplete, RateProduct, RecoRequest, RecoShow, RemoveFromCart, RemoveFromList, RemoveItem, CartPageView, SortItems, UnknownEvent, UpsertItem } from "./file";
+//   import { Convert, AddToCart, AddToList, APISettings, CategoryPageView, CheckoutStart, DetailProductView, HomePageView, ImageInteraction, RemoveItem, UpsertItem, ListView, OfflineRecommendationsRemove, OfflineRecommendationsUpsert, OtherInteraction, PageVisit, PlacementRemove, PlacementUpsert, PurchaseComplete, RateProduct, RecoRequest, RecoShow, RemoveFromCart, RemoveFromList, CartPageView, SortItems, UnknownEvent } from "./file";
 //
 //   const addToCart = Convert.toAddToCart(json);
 //   const addToList = Convert.toAddToList(json);
@@ -11,20 +11,24 @@
 //   const detailProductView = Convert.toDetailProductView(json);
 //   const homePageView = Convert.toHomePageView(json);
 //   const imageInteraction = Convert.toImageInteraction(json);
+//   const removeItem = Convert.toRemoveItem(json);
+//   const upsertItem = Convert.toUpsertItem(json);
 //   const listView = Convert.toListView(json);
+//   const offlineRecommendationsRemove = Convert.toOfflineRecommendationsRemove(json);
+//   const offlineRecommendationsUpsert = Convert.toOfflineRecommendationsUpsert(json);
 //   const otherInteraction = Convert.toOtherInteraction(json);
 //   const pageVisit = Convert.toPageVisit(json);
+//   const placementRemove = Convert.toPlacementRemove(json);
+//   const placementUpsert = Convert.toPlacementUpsert(json);
 //   const purchaseComplete = Convert.toPurchaseComplete(json);
 //   const rateProduct = Convert.toRateProduct(json);
 //   const recoRequest = Convert.toRecoRequest(json);
 //   const recoShow = Convert.toRecoShow(json);
 //   const removeFromCart = Convert.toRemoveFromCart(json);
 //   const removeFromList = Convert.toRemoveFromList(json);
-//   const removeItem = Convert.toRemoveItem(json);
 //   const cartPageView = Convert.toCartPageView(json);
 //   const sortItems = Convert.toSortItems(json);
 //   const unknownEvent = Convert.toUnknownEvent(json);
-//   const upsertItem = Convert.toUpsertItem(json);
 //
 // These functions will throw an error if the JSON doesn't
 // match the expected interface, even if the JSON is valid.
@@ -54,19 +58,23 @@ export enum EventType {
     DetailProductView = "DetailProductView",
     HomePageView = "HomePageView",
     ImageInteraction = "ImageInteraction",
+    ItemRemove = "ItemRemove",
+    ItemUpsert = "ItemUpsert",
     ListView = "ListView",
+    OfflineRecommendationsRemove = "OfflineRecommendationsRemove",
+    OfflineRecommendationsUpsert = "OfflineRecommendationsUpsert",
     OtherInteraction = "OtherInteraction",
     PageVisit = "PageVisit",
+    PlacementRemove = "PlacementRemove",
+    PlacementUpsert = "PlacementUpsert",
     PurchaseComplete = "PurchaseComplete",
     RateProduct = "RateProduct",
     RecoRequest = "RecoRequest",
     RecoShow = "RecoShow",
     RemoveFromCart = "RemoveFromCart",
     RemoveFromList = "RemoveFromList",
-    RemoveItem = "RemoveItem",
     SortItems = "SortItems",
     UnknownEvent = "UnknownEvent",
-    UpsertItem = "UpsertItem",
 }
 
 export interface ItemDetails {
@@ -346,12 +354,92 @@ export interface ImageInteraction {
     user_info:     UserInfo;
 }
 
+export interface RemoveItem {
+    event_detail?: null | EventDetail;
+    event_time:    number;
+    event_type:    EventType;
+    item_id:       string;
+    user_info:     UserInfo;
+}
+
+export interface UpsertItem {
+    event_detail?:   null | EventDetail;
+    event_time:      number;
+    event_type:      EventType;
+    product_details: ProductDetails;
+    user_info:       UserInfo;
+}
+
+export interface ProductDetails {
+    attributes?:             { [key: string]: string } | null;
+    available_quantity?:     number | null;
+    canonical_product_uri?:  null | string;
+    categorical_attributes?: { [key: string]: string } | null;
+    categories?:             Array<string[]> | null;
+    costs?:                  { [key: string]: number } | null;
+    currency_code:           Currency;
+    description?:            null | string;
+    exact_price:             ExactPrice;
+    id:                      string;
+    images?:                 Image[] | null;
+    item_group_id?:          null | string;
+    language_code?:          null | string;
+    numeric_attributes?:     { [key: string]: number } | null;
+    stock_state:             StockState;
+    tags?:                   string[] | null;
+    title:                   string;
+}
+
+export interface ExactPrice {
+    display_price:  number;
+    original_price: number;
+}
+
+export interface Image {
+    height: string;
+    uri:    string;
+    width:  string;
+}
+
+export enum StockState {
+    BackOrder = "BackOrder",
+    InStock = "InStock",
+    OutOfStock = "OutOfStock",
+    PreOrder = "PreOrder",
+}
+
 export interface ListView {
     event_detail?: null | EventDetail;
     event_time:    number;
     event_type:    EventType;
     items:         ItemDetails[];
     list_id:       string;
+    user_info:     UserInfo;
+}
+
+export interface OfflineRecommendationsRemove {
+    event_detail?: null | EventDetail;
+    event_time:    number;
+    event_type:    EventType;
+    name:          OfflineRecommendationsTypeEnum | OfflineRecommendationsTypeObject;
+    user_info:     UserInfo;
+}
+
+export enum OfflineRecommendationsTypeEnum {
+    ImageSimilarity = "ImageSimilarity",
+    TextSimilarity = "TextSimilarity",
+}
+
+export interface OfflineRecommendationsTypeObject {
+    OtherSimilarity: string;
+}
+
+export interface OfflineRecommendationsUpsert {
+    event_detail?: null | EventDetail;
+    event_time:    number;
+    event_type:    EventType;
+    matrix:        { [key: string]: { [key: string]: number } };
+    name:          OfflineRecommendationsTypeEnum | OfflineRecommendationsTypeObject;
     user_info:     UserInfo;
 }
 
@@ -369,6 +457,54 @@ export interface PageVisit {
     event_time:    number;
     event_type:    EventType;
     user_info:     UserInfo;
+}
+
+export interface PlacementRemove {
+    event_detail?: null | EventDetail;
+    event_time:    number;
+    event_type:    EventType;
+    name:          string;
+    user_info:     UserInfo;
+}
+
+export interface PlacementUpsert {
+    event_detail?: null | EventDetail;
+    event_time:    number;
+    event_type:    EventType;
+    name:          string;
+    ranking:       RankingStrategy;
+    strategies:    WeightedGenericCandidateRec[];
+    user_info:     UserInfo;
+}
+
+export enum RankingStrategy {
+    DirichletSampling = "DirichletSampling",
+    RankingModel = "RankingModel",
+    ThomsponSampling = "ThomsponSampling",
+    WeightedSample = "WeightedSample",
+}
+
+export interface WeightedGenericCandidateRec {
+    strategy: GenericStrategyEnum | GenericStrategyObject;
+    weight:   number;
+}
+
+export enum GenericStrategyEnum {
+    AlsoAddedToCart = "AlsoAddedToCart",
+    AlsoPurchased = "AlsoPurchased",
+    AlsoSeen = "AlsoSeen",
+    ContentMatching = "ContentMatching",
+    MostPurchases = "MostPurchases",
+    MostViews = "MostViews",
+    SeenInSession = "SeenInSession",
+    SimilarAttributes = "SimilarAttributes",
+    SimilarImage = "SimilarImage",
+    SimilarText = "SimilarText",
+}
+
+export interface GenericStrategyObject {
+    SimilarOffline?: string;
+    Query?:          string;
 }
 
 export interface PurchaseComplete {
@@ -451,17 +587,6 @@ export interface ProductDetailsRecoShow {
     title:                  string;
 }
 
-export interface ExactPrice {
-    display_price:  number;
-    original_price: number;
-}
-
-export interface Image {
-    height: string;
-    uri:    string;
-    width:  string;
-}
-
 export interface RemoveFromCart {
     cart_id?:      null | string;
     event_detail?: null | EventDetail;
@@ -477,14 +602,6 @@ export interface RemoveFromList {
     event_type:    EventType;
     items:         ItemDetails[];
     list_id?:      null | string;
-    user_info:     UserInfo;
-}
-
-export interface RemoveItem {
-    event_detail?: null | EventDetail;
-    event_time:    number;
-    event_type:    EventType;
-    item_id:       string;
     user_info:     UserInfo;
 }
 
@@ -521,41 +638,6 @@ export interface UnknownEvent {
     event_time:    number;
     event_type:    EventType;
     user_info:     UserInfo;
-}
-
-export interface UpsertItem {
-    event_detail?:   null | EventDetail;
-    event_time:      number;
-    event_type:      EventType;
-    product_details: ProductDetails;
-    user_info:       UserInfo;
-}
-
-export interface ProductDetails {
-    attributes?:             { [key: string]: string } | null;
-    available_quantity?:     number | null;
-    canonical_product_uri?:  null | string;
-    categorical_attributes?: { [key: string]: string } | null;
-    categories?:             Array<string[]> | null;
-    costs?:                  { [key: string]: number } | null;
-    currency_code:           Currency;
-    description?:            null | string;
-    exact_price:             ExactPrice;
-    id:                      string;
-    images?:                 Image[] | null;
-    item_group_id?:          null | string;
-    language_code?:          null | string;
-    numeric_attributes?:     { [key: string]: number } | null;
-    stock_state:             StockState;
-    tags?:                   string[] | null;
-    title:                   string;
-}
-
-export enum StockState {
-    BackOrder = "BackOrder",
-    InStock = "InStock",
-    OutOfStock = "OutOfStock",
-    PreOrder = "PreOrder",
 }
 
 // Converts JSON types to/from your types
@@ -681,12 +763,76 @@ export class Convert {
         return uncast(value, r("ImageInteraction"));
     }
 
+    public static toRemoveItem(json: any): RemoveItem {
+        return cast(json, r("RemoveItem"));
+    }
+
+    public static removeItemToJson(value: RemoveItem): any {
+        return uncast(value, r("RemoveItem"));
+    }
+
+    public static toUpsertItem(json: any): UpsertItem {
+        return cast(json, r("UpsertItem"));
+    }
+
+    public static upsertItemToJson(value: UpsertItem): any {
+        return uncast(value, r("UpsertItem"));
+    }
+
+    public static toProductDetails(json: any): ProductDetails {
+        return cast(json, r("ProductDetails"));
+    }
+
+    public static productDetailsToJson(value: ProductDetails): any {
+        return uncast(value, r("ProductDetails"));
+    }
+
+    public static toExactPrice(json: any): ExactPrice {
+        return cast(json, r("ExactPrice"));
+    }
+
+    public static exactPriceToJson(value: ExactPrice): any {
+        return uncast(value, r("ExactPrice"));
+    }
+
+    public static toImage(json: any): Image {
+        return cast(json, r("Image"));
+    }
+
+    public static imageToJson(value: Image): any {
+        return uncast(value, r("Image"));
+    }
+
     public static toListView(json: any): ListView {
         return cast(json, r("ListView"));
     }
 
     public static listViewToJson(value: ListView): any {
         return uncast(value, r("ListView"));
+    }
+
+    public static toOfflineRecommendationsRemove(json: any): OfflineRecommendationsRemove {
+        return cast(json, r("OfflineRecommendationsRemove"));
+    }
+
+    public static offlineRecommendationsRemoveToJson(value: OfflineRecommendationsRemove): any {
+        return uncast(value, r("OfflineRecommendationsRemove"));
+    }
+
+    public static toOfflineRecommendationsTypeObject(json: any): OfflineRecommendationsTypeObject {
+        return cast(json, r("OfflineRecommendationsTypeObject"));
+    }
+
+    public static offlineRecommendationsTypeObjectToJson(value: OfflineRecommendationsTypeObject): any {
+        return uncast(value, r("OfflineRecommendationsTypeObject"));
+    }
+
+    public static toOfflineRecommendationsUpsert(json: any): OfflineRecommendationsUpsert {
+        return cast(json, r("OfflineRecommendationsUpsert"));
+    }
+
+    public static offlineRecommendationsUpsertToJson(value: OfflineRecommendationsUpsert): any {
+        return uncast(value, r("OfflineRecommendationsUpsert"));
     }
 
     public static toOtherInteraction(json: any): OtherInteraction {
@@ -703,6 +849,38 @@ export class Convert {
 
     public static pageVisitToJson(value: PageVisit): any {
         return uncast(value, r("PageVisit"));
+    }
+
+    public static toPlacementRemove(json: any): PlacementRemove {
+        return cast(json, r("PlacementRemove"));
+    }
+
+    public static placementRemoveToJson(value: PlacementRemove): any {
+        return uncast(value, r("PlacementRemove"));
+    }
+
+    public static toPlacementUpsert(json: any): PlacementUpsert {
+        return cast(json, r("PlacementUpsert"));
+    }
+
+    public static placementUpsertToJson(value: PlacementUpsert): any {
+        return uncast(value, r("PlacementUpsert"));
+    }
+
+    public static toWeightedGenericCandidateRec(json: any): WeightedGenericCandidateRec {
+        return cast(json, r("WeightedGenericCandidateRec"));
+    }
+
+    public static weightedGenericCandidateRecToJson(value: WeightedGenericCandidateRec): any {
+        return uncast(value, r("WeightedGenericCandidateRec"));
+    }
+
+    public static toGenericStrategyObject(json: any): GenericStrategyObject {
+        return cast(json, r("GenericStrategyObject"));
+    }
+
+    public static genericStrategyObjectToJson(value: GenericStrategyObject): any {
+        return uncast(value, r("GenericStrategyObject"));
     }
 
     public static toPurchaseComplete(json: any): PurchaseComplete {
@@ -769,22 +947,6 @@ export class Convert {
         return uncast(value, r("ProductDetailsRecoShow"));
     }
 
-    public static toExactPrice(json: any): ExactPrice {
-        return cast(json, r("ExactPrice"));
-    }
-
-    public static exactPriceToJson(value: ExactPrice): any {
-        return uncast(value, r("ExactPrice"));
-    }
-
-    public static toImage(json: any): Image {
-        return cast(json, r("Image"));
-    }
-
-    public static imageToJson(value: Image): any {
-        return uncast(value, r("Image"));
-    }
-
     public static toRemoveFromCart(json: any): RemoveFromCart {
         return cast(json, r("RemoveFromCart"));
     }
@@ -799,14 +961,6 @@ export class Convert {
 
     public static removeFromListToJson(value: RemoveFromList): any {
         return uncast(value, r("RemoveFromList"));
-    }
-
-    public static toRemoveItem(json: any): RemoveItem {
-        return cast(json, r("RemoveItem"));
-    }
-
-    public static removeItemToJson(value: RemoveItem): any {
-        return uncast(value, r("RemoveItem"));
     }
 
     public static toCartPageView(json: any): CartPageView {
@@ -831,22 +985,6 @@ export class Convert {
 
     public static unknownEventToJson(value: UnknownEvent): any {
         return uncast(value, r("UnknownEvent"));
-    }
-
-    public static toUpsertItem(json: any): UpsertItem {
-        return cast(json, r("UpsertItem"));
-    }
-
-    public static upsertItemToJson(value: UpsertItem): any {
-        return uncast(value, r("UpsertItem"));
-    }
-
-    public static toProductDetails(json: any): ProductDetails {
-        return cast(json, r("ProductDetails"));
-    }
-
-    public static productDetailsToJson(value: ProductDetails): any {
-        return uncast(value, r("ProductDetails"));
     }
 }
 
@@ -1083,12 +1221,72 @@ const typeMap: any = {
         { json: "item", js: "item", typ: r("ItemDetails") },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
+    "RemoveItem": o([
+        { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
+        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_type", js: "event_type", typ: r("EventType") },
+        { json: "item_id", js: "item_id", typ: "" },
+        { json: "user_info", js: "user_info", typ: r("UserInfo") },
+    ], "any"),
+    "UpsertItem": o([
+        { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
+        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_type", js: "event_type", typ: r("EventType") },
+        { json: "product_details", js: "product_details", typ: r("ProductDetails") },
+        { json: "user_info", js: "user_info", typ: r("UserInfo") },
+    ], "any"),
+    "ProductDetails": o([
+        { json: "attributes", js: "attributes", typ: u(undefined, u(m(""), null)) },
+        { json: "available_quantity", js: "available_quantity", typ: u(undefined, u(0, null)) },
+        { json: "canonical_product_uri", js: "canonical_product_uri", typ: u(undefined, u(null, "")) },
+        { json: "categorical_attributes", js: "categorical_attributes", typ: u(undefined, u(m(""), null)) },
+        { json: "categories", js: "categories", typ: u(undefined, u(a(a("")), null)) },
+        { json: "costs", js: "costs", typ: u(undefined, u(m(3.14), null)) },
+        { json: "currency_code", js: "currency_code", typ: r("Currency") },
+        { json: "description", js: "description", typ: u(undefined, u(null, "")) },
+        { json: "exact_price", js: "exact_price", typ: r("ExactPrice") },
+        { json: "id", js: "id", typ: "" },
+        { json: "images", js: "images", typ: u(undefined, u(a(r("Image")), null)) },
+        { json: "item_group_id", js: "item_group_id", typ: u(undefined, u(null, "")) },
+        { json: "language_code", js: "language_code", typ: u(undefined, u(null, "")) },
+        { json: "numeric_attributes", js: "numeric_attributes", typ: u(undefined, u(m(3.14), null)) },
+        { json: "stock_state", js: "stock_state", typ: r("StockState") },
+        { json: "tags", js: "tags", typ: u(undefined, u(a(""), null)) },
+        { json: "title", js: "title", typ: "" },
+    ], "any"),
+    "ExactPrice": o([
+        { json: "display_price", js: "display_price", typ: 3.14 },
+        { json: "original_price", js: "original_price", typ: 3.14 },
+    ], "any"),
+    "Image": o([
+        { json: "height", js: "height", typ: "" },
+        { json: "uri", js: "uri", typ: "" },
+        { json: "width", js: "width", typ: "" },
+    ], "any"),
     "ListView": o([
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
         { json: "event_time", js: "event_time", typ: 0 },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "items", js: "items", typ: a(r("ItemDetails")) },
         { json: "list_id", js: "list_id", typ: "" },
+        { json: "user_info", js: "user_info", typ: r("UserInfo") },
+    ], "any"),
+    "OfflineRecommendationsRemove": o([
+        { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
+        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_type", js: "event_type", typ: r("EventType") },
+        { json: "name", js: "name", typ: u(r("OfflineRecommendationsTypeEnum"), r("OfflineRecommendationsTypeObject")) },
+        { json: "user_info", js: "user_info", typ: r("UserInfo") },
+    ], "any"),
+    "OfflineRecommendationsTypeObject": o([
+        { json: "OtherSimilarity", js: "OtherSimilarity", typ: "" },
+    ], "any"),
+    "OfflineRecommendationsUpsert": o([
+        { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
+        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_type", js: "event_type", typ: r("EventType") },
+        { json: "matrix", js: "matrix", typ: m(m(0)) },
+        { json: "name", js: "name", typ: u(r("OfflineRecommendationsTypeEnum"), r("OfflineRecommendationsTypeObject")) },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
     "OtherInteraction": o([
@@ -1104,6 +1302,30 @@ const typeMap: any = {
         { json: "event_time", js: "event_time", typ: 0 },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
+    ], "any"),
+    "PlacementRemove": o([
+        { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
+        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_type", js: "event_type", typ: r("EventType") },
+        { json: "name", js: "name", typ: "" },
+        { json: "user_info", js: "user_info", typ: r("UserInfo") },
+    ], "any"),
+    "PlacementUpsert": o([
+        { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
+        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_type", js: "event_type", typ: r("EventType") },
+        { json: "name", js: "name", typ: "" },
+        { json: "ranking", js: "ranking", typ: r("RankingStrategy") },
+        { json: "strategies", js: "strategies", typ: a(r("WeightedGenericCandidateRec")) },
+        { json: "user_info", js: "user_info", typ: r("UserInfo") },
+    ], "any"),
+    "WeightedGenericCandidateRec": o([
+        { json: "strategy", js: "strategy", typ: u(r("GenericStrategyEnum"), r("GenericStrategyObject")) },
+        { json: "weight", js: "weight", typ: 3.14 },
+    ], "any"),
+    "GenericStrategyObject": o([
+        { json: "SimilarOffline", js: "SimilarOffline", typ: u(undefined, "") },
+        { json: "Query", js: "Query", typ: u(undefined, "") },
     ], "any"),
     "PurchaseComplete": o([
         { json: "cart_id", js: "cart_id", typ: u(undefined, u(null, "")) },
@@ -1172,15 +1394,6 @@ const typeMap: any = {
         { json: "strategies_used", js: "strategies_used", typ: u(undefined, u(m(3.14), null)) },
         { json: "title", js: "title", typ: "" },
     ], "any"),
-    "ExactPrice": o([
-        { json: "display_price", js: "display_price", typ: 3.14 },
-        { json: "original_price", js: "original_price", typ: 3.14 },
-    ], "any"),
-    "Image": o([
-        { json: "height", js: "height", typ: "" },
-        { json: "uri", js: "uri", typ: "" },
-        { json: "width", js: "width", typ: "" },
-    ], "any"),
     "RemoveFromCart": o([
         { json: "cart_id", js: "cart_id", typ: u(undefined, u(null, "")) },
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
@@ -1195,13 +1408,6 @@ const typeMap: any = {
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "items", js: "items", typ: a(r("ItemDetails")) },
         { json: "list_id", js: "list_id", typ: u(undefined, u(null, "")) },
-        { json: "user_info", js: "user_info", typ: r("UserInfo") },
-    ], "any"),
-    "RemoveItem": o([
-        { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
-        { json: "event_type", js: "event_type", typ: r("EventType") },
-        { json: "item_id", js: "item_id", typ: "" },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
     "CartPageView": o([
@@ -1225,32 +1431,6 @@ const typeMap: any = {
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
-    "UpsertItem": o([
-        { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
-        { json: "event_type", js: "event_type", typ: r("EventType") },
-        { json: "product_details", js: "product_details", typ: r("ProductDetails") },
-        { json: "user_info", js: "user_info", typ: r("UserInfo") },
-    ], "any"),
-    "ProductDetails": o([
-        { json: "attributes", js: "attributes", typ: u(undefined, u(m(""), null)) },
-        { json: "available_quantity", js: "available_quantity", typ: u(undefined, u(0, null)) },
-        { json: "canonical_product_uri", js: "canonical_product_uri", typ: u(undefined, u(null, "")) },
-        { json: "categorical_attributes", js: "categorical_attributes", typ: u(undefined, u(m(""), null)) },
-        { json: "categories", js: "categories", typ: u(undefined, u(a(a("")), null)) },
-        { json: "costs", js: "costs", typ: u(undefined, u(m(3.14), null)) },
-        { json: "currency_code", js: "currency_code", typ: r("Currency") },
-        { json: "description", js: "description", typ: u(undefined, u(null, "")) },
-        { json: "exact_price", js: "exact_price", typ: r("ExactPrice") },
-        { json: "id", js: "id", typ: "" },
-        { json: "images", js: "images", typ: u(undefined, u(a(r("Image")), null)) },
-        { json: "item_group_id", js: "item_group_id", typ: u(undefined, u(null, "")) },
-        { json: "language_code", js: "language_code", typ: u(undefined, u(null, "")) },
-        { json: "numeric_attributes", js: "numeric_attributes", typ: u(undefined, u(m(3.14), null)) },
-        { json: "stock_state", js: "stock_state", typ: r("StockState") },
-        { json: "tags", js: "tags", typ: u(undefined, u(a(""), null)) },
-        { json: "title", js: "title", typ: "" },
-    ], "any"),
     "EventType": [
         "AddToCart",
         "AddToList",
@@ -1260,19 +1440,23 @@ const typeMap: any = {
         "DetailProductView",
         "HomePageView",
         "ImageInteraction",
+        "ItemRemove",
+        "ItemUpsert",
         "ListView",
+        "OfflineRecommendationsRemove",
+        "OfflineRecommendationsUpsert",
         "OtherInteraction",
         "PageVisit",
+        "PlacementRemove",
+        "PlacementUpsert",
         "PurchaseComplete",
         "RateProduct",
         "RecoRequest",
         "RecoShow",
         "RemoveFromCart",
         "RemoveFromList",
-        "RemoveItem",
         "SortItems",
         "UnknownEvent",
-        "UpsertItem",
     ],
     "Currency": [
         "AMD",
@@ -1450,6 +1634,34 @@ const typeMap: any = {
         "Male",
         "Other",
     ],
+    "StockState": [
+        "BackOrder",
+        "InStock",
+        "OutOfStock",
+        "PreOrder",
+    ],
+    "OfflineRecommendationsTypeEnum": [
+        "ImageSimilarity",
+        "TextSimilarity",
+    ],
+    "RankingStrategy": [
+        "DirichletSampling",
+        "RankingModel",
+        "ThomsponSampling",
+        "WeightedSample",
+    ],
+    "GenericStrategyEnum": [
+        "AlsoAddedToCart",
+        "AlsoPurchased",
+        "AlsoSeen",
+        "ContentMatching",
+        "MostPurchases",
+        "MostViews",
+        "SeenInSession",
+        "SimilarAttributes",
+        "SimilarImage",
+        "SimilarText",
+    ],
     "LocationEnum": [
         "Error404",
         "HomePage",
@@ -1463,11 +1675,5 @@ const typeMap: any = {
         "PriceDesc",
         "RatingAsc",
         "RatingDesc",
-    ],
-    "StockState": [
-        "BackOrder",
-        "InStock",
-        "OutOfStock",
-        "PreOrder",
     ],
 };
