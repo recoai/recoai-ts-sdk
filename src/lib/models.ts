@@ -35,7 +35,6 @@ export interface AddToCart {
     event_time:    number;
     event_type:    EventType;
     items:         ItemDetails[];
-    rec_id?:       null | string;
     user_info:     UserInfo;
 }
 
@@ -404,7 +403,6 @@ export interface RecoRequest {
 }
 
 export enum LocationEnum {
-    CheckoutPage = "CheckoutPage",
     Error404 = "Error404",
     HomePage = "HomePage",
 }
@@ -414,6 +412,7 @@ export interface LocationObject {
     AddToCart?:    string;
     CategoryPage?: string;
     SearchPage?:   SearchInfo;
+    CheckoutPage?: string[];
     OtherPage?:    PageInfo;
     UnknownPage?:  PageInfo;
 }
@@ -436,7 +435,6 @@ export interface RecoShow {
     items:                  ProductDetailsRecoShow[];
     location:               LocationEnum | LocationObject;
     placement_name?:        null | string;
-    rec_id:                 string;
     user_info:              UserInfo;
 }
 
@@ -447,6 +445,9 @@ export interface ProductDetailsRecoShow {
     exact_price:            ExactPrice;
     id:                     string;
     images?:                Image[] | null;
+    rec_id:                 string;
+    score?:                 number | null;
+    strategies_used?:       { [key: string]: number } | null;
     title:                  string;
 }
 
@@ -988,7 +989,6 @@ const typeMap: any = {
         { json: "event_time", js: "event_time", typ: 0 },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "items", js: "items", typ: a(r("ItemDetails")) },
-        { json: "rec_id", js: "rec_id", typ: u(undefined, u(null, "")) },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
     "EventDetail": o([
@@ -1138,6 +1138,7 @@ const typeMap: any = {
         { json: "AddToCart", js: "AddToCart", typ: u(undefined, "") },
         { json: "CategoryPage", js: "CategoryPage", typ: u(undefined, "") },
         { json: "SearchPage", js: "SearchPage", typ: u(undefined, r("SearchInfo")) },
+        { json: "CheckoutPage", js: "CheckoutPage", typ: u(undefined, a("")) },
         { json: "OtherPage", js: "OtherPage", typ: u(undefined, r("PageInfo")) },
         { json: "UnknownPage", js: "UnknownPage", typ: u(undefined, r("PageInfo")) },
     ], "any"),
@@ -1157,7 +1158,6 @@ const typeMap: any = {
         { json: "items", js: "items", typ: a(r("ProductDetailsRecoShow")) },
         { json: "location", js: "location", typ: u(r("LocationEnum"), r("LocationObject")) },
         { json: "placement_name", js: "placement_name", typ: u(undefined, u(null, "")) },
-        { json: "rec_id", js: "rec_id", typ: "" },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
     "ProductDetailsRecoShow": o([
@@ -1167,6 +1167,9 @@ const typeMap: any = {
         { json: "exact_price", js: "exact_price", typ: r("ExactPrice") },
         { json: "id", js: "id", typ: "" },
         { json: "images", js: "images", typ: u(undefined, u(a(r("Image")), null)) },
+        { json: "rec_id", js: "rec_id", typ: "" },
+        { json: "score", js: "score", typ: u(undefined, u(3.14, null)) },
+        { json: "strategies_used", js: "strategies_used", typ: u(undefined, u(m(3.14), null)) },
         { json: "title", js: "title", typ: "" },
     ], "any"),
     "ExactPrice": o([
@@ -1448,7 +1451,6 @@ const typeMap: any = {
         "Other",
     ],
     "LocationEnum": [
-        "CheckoutPage",
         "Error404",
         "HomePage",
     ],
