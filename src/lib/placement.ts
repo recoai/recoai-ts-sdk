@@ -11,6 +11,10 @@ import {
   Convert,
 } from './models';
 
+Sqrl.filters.define('pln_currency', function (amount) {
+  return (Math.round(amount * 100) / 100).toFixed(2).replace('.', ',') + ' zł';
+});
+
 export interface PlacementConfig {
   // jquery selector
   element_selector: string;
@@ -52,24 +56,27 @@ function handlePlacement(apiSettings: APISettings, config: PlacementConfig) {
 
   var reco_request: RecoRequest = {
     event_type: EventType.RecoRequest,
-    event_time: 0,
     location: config.location(),
     n_items: config.n_items,
     placement_name: config.name,
     user_info: user_info,
   };
-
   var elementToInject = $(config.element_selector);
 
   if (elementToInject.length == 1) {
     $.ajax({
       type: 'POST',
       url: apiSettings.url_api + config.api_endpoint,
+      contentType: 'application/json; charset=utf-8',
+      dataType: 'json',
       data: JSON.stringify(reco_request),
-      timeout: 2000,
+      timeout: 1000,
       error: function () {},
       success: function (data) {
-        let recoShow = Convert.toRecoShow(data.response.RecoShow);
+        console.log('Response', data);
+        // var dataParsed = JSON.parse(data);
+        let recoShow = Convert.toRecoShow(data);
+        console.log('recoShow', recoShow);
         if (recoShow.items.length > 0) {
           injectRecommendations(config, recoShow);
         }
@@ -80,7 +87,7 @@ function handlePlacement(apiSettings: APISettings, config: PlacementConfig) {
 
 export default function runRecommendations(
   apiSettings: APISettings,
-  placementConfigs: [PlacementConfig]
+  placementConfigs: Array<PlacementConfig>
 ) {
   placementConfigs.forEach((config) => {
     handlePlacement(apiSettings, config);

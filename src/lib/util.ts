@@ -1,12 +1,4 @@
-import lzString from 'lz-string';
-
-export function compressToEncodedURIComponent(x) {
-  return lzString.compressToEncodedURIComponent(x);
-}
-
-export function decompressFromEncodedURIComponent(x) {
-  return lzString.decompressFromEncodedURIComponent(x);
-}
+import { APISettings } from './models';
 
 export function shuffle(array) {
   var currentIndex = array.length,
@@ -46,4 +38,38 @@ export function getCustomerIdentifier() {
   }
 
   return customer;
+}
+
+export function extractCategory() {
+  return $('.breadcrumb')
+    .find("span[itemprop='name']")
+    .map(function () {
+      return $(this).text();
+    })
+    .get()
+    .join(' > ');
+}
+
+export function sendTrackingEvent(params, apiSettings: APISettings) {
+  $.ajax({
+    type: 'POST',
+    url: apiSettings.url_api + '/event',
+    data: JSON.stringify(params),
+    timeout: 1000,
+    error: function () {},
+    success: function () {},
+  });
+}
+
+function extractRecoIDFromString(s) {
+  var match = s.match(/rec=([A-Z0-9a-z]+)/);
+  if (match && match.length == 2) {
+    return match[1];
+  } else {
+    return null;
+  }
+}
+
+export function extractRecoID() {
+  return extractRecoIDFromString(window.location.search);
 }

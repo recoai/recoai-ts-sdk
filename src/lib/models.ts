@@ -36,7 +36,7 @@
 export interface AddToCart {
     cart_id?:      null | string;
     event_detail?: null | EventDetail;
-    event_time:    number;
+    event_time?:   number | null;
     event_type:    EventType;
     items:         ItemDetails[];
     user_info:     UserInfo;
@@ -281,7 +281,7 @@ export enum Gender {
 
 export interface AddToList {
     event_detail?: null | EventDetail;
-    event_time:    number;
+    event_time?:   number | null;
     event_type:    EventType;
     items:         ItemDetails[];
     list_id:       string;
@@ -294,7 +294,7 @@ export interface APISettings {
 
 export interface CategoryPageView {
     event_detail?:    null | EventDetail;
-    event_time:       number;
+    event_time?:      number | null;
     event_type:       EventType;
     items:            ItemDetails[];
     on_screen:        boolean;
@@ -305,7 +305,7 @@ export interface CategoryPageView {
 export interface CheckoutStart {
     cart_id?:             null | string;
     event_detail?:        null | EventDetail;
-    event_time:           number;
+    event_time?:          number | null;
     event_type:           EventType;
     items:                ItemDetails[];
     purchase_transaction: PurchaseTransaction;
@@ -332,7 +332,7 @@ export interface Taxes {
 
 export interface DetailProductView {
     event_detail?: null | EventDetail;
-    event_time:    number;
+    event_time?:   number | null;
     event_type:    EventType;
     item:          ItemDetails;
     rec_id?:       null | string;
@@ -341,14 +341,14 @@ export interface DetailProductView {
 
 export interface HomePageView {
     event_detail?: null | EventDetail;
-    event_time:    number;
+    event_time?:   number | null;
     event_type:    EventType;
     user_info:     UserInfo;
 }
 
 export interface ImageInteraction {
     event_detail?: null | EventDetail;
-    event_time:    number;
+    event_time?:   number | null;
     event_type:    EventType;
     item:          ItemDetails;
     user_info:     UserInfo;
@@ -379,26 +379,27 @@ export interface ProductDetails {
     costs?:                  { [key: string]: number } | null;
     currency_code:           Currency;
     description?:            null | string;
-    exact_price:             ExactPrice;
     id:                      string;
     images?:                 Image[] | null;
     item_group_id?:          null | string;
     language_code?:          null | string;
     numeric_attributes?:     { [key: string]: number } | null;
+    price:                   ExactPrice;
+    product_code?:           null | string;
     stock_state:             StockState;
     tags?:                   string[] | null;
     title:                   string;
-}
-
-export interface ExactPrice {
-    display_price:  number;
-    original_price: number;
 }
 
 export interface Image {
     height: string;
     uri:    string;
     width:  string;
+}
+
+export interface ExactPrice {
+    display_price:  number;
+    original_price: number;
 }
 
 export enum StockState {
@@ -410,7 +411,7 @@ export enum StockState {
 
 export interface ListView {
     event_detail?: null | EventDetail;
-    event_time:    number;
+    event_time?:   number | null;
     event_type:    EventType;
     items:         ItemDetails[];
     list_id:       string;
@@ -419,7 +420,7 @@ export interface ListView {
 
 export interface OfflineRecommendationsRemove {
     event_detail?: null | EventDetail;
-    event_time:    number;
+    event_time?:   number | null;
     event_type:    EventType;
     name:          OfflineRecommendationsTypeEnum | OfflineRecommendationsTypeObject;
     user_info:     UserInfo;
@@ -436,7 +437,7 @@ export interface OfflineRecommendationsTypeObject {
 
 export interface OfflineRecommendationsUpsert {
     event_detail?: null | EventDetail;
-    event_time:    number;
+    event_time?:   number | null;
     event_type:    EventType;
     matrix:        { [key: string]: { [key: string]: number } };
     name:          OfflineRecommendationsTypeEnum | OfflineRecommendationsTypeObject;
@@ -445,7 +446,7 @@ export interface OfflineRecommendationsUpsert {
 
 export interface OtherInteraction {
     event_detail?:    null | EventDetail;
-    event_time:       number;
+    event_time?:      number | null;
     event_type:       EventType;
     interaction_name: string;
     item:             ItemDetails;
@@ -454,14 +455,14 @@ export interface OtherInteraction {
 
 export interface PageVisit {
     event_detail?: null | EventDetail;
-    event_time:    number;
+    event_time?:   number | null;
     event_type:    EventType;
     user_info:     UserInfo;
 }
 
 export interface PlacementRemove {
     event_detail?: null | EventDetail;
-    event_time:    number;
+    event_time?:   number | null;
     event_type:    EventType;
     name:          string;
     user_info:     UserInfo;
@@ -469,7 +470,7 @@ export interface PlacementRemove {
 
 export interface PlacementUpsert {
     event_detail?: null | EventDetail;
-    event_time:    number;
+    event_time?:   number | null;
     event_type:    EventType;
     name:          string;
     ranking:       RankingStrategy;
@@ -493,10 +494,15 @@ export enum GenericStrategyEnum {
     AlsoAddedToCart = "AlsoAddedToCart",
     AlsoPurchased = "AlsoPurchased",
     AlsoSeen = "AlsoSeen",
+    BestsellerCategory = "BestsellerCategory",
+    BestsellerGlobal = "BestsellerGlobal",
     ContentMatching = "ContentMatching",
     MostPurchases = "MostPurchases",
     MostViews = "MostViews",
+    SearchMatching = "SearchMatching",
     SeenInSession = "SeenInSession",
+    SeenInSessionCoccurAddedToCart = "SeenInSessionCoccurAddedToCart",
+    SeenInSessionCoccurSeen = "SeenInSessionCoccurSeen",
     SimilarAttributes = "SimilarAttributes",
     SimilarImage = "SimilarImage",
     SimilarText = "SimilarText",
@@ -510,7 +516,7 @@ export interface GenericStrategyObject {
 export interface PurchaseComplete {
     cart_id?:             null | string;
     event_detail?:        null | EventDetail;
-    event_time:           number;
+    event_time?:          number | null;
     event_type:           EventType;
     items:                ItemDetails[];
     purchase_transaction: PurchaseTransaction;
@@ -520,7 +526,7 @@ export interface PurchaseComplete {
 export interface RateProduct {
     comment?:      null | string;
     event_detail?: null | EventDetail;
-    event_time:    number;
+    event_time?:   number | null;
     event_type:    EventType;
     item:          ItemDetails;
     rating?:       number | null;
@@ -530,7 +536,7 @@ export interface RateProduct {
 export interface RecoRequest {
     additional_uri_params?: { [key: string]: string } | null;
     event_detail?:          null | EventDetail;
-    event_time:             number;
+    event_time?:            number | null;
     event_type:             EventType;
     location:               LocationEnum | LocationObject;
     n_items:                number;
@@ -546,7 +552,7 @@ export enum LocationEnum {
 export interface LocationObject {
     ProductPage?:  string;
     AddToCart?:    string;
-    CategoryPage?: string;
+    CategoryPage?: string[];
     SearchPage?:   SearchInfo;
     CheckoutPage?: string[];
     OtherPage?:    PageInfo;
@@ -565,7 +571,7 @@ export interface SearchInfo {
 export interface RecoShow {
     additional_uri_params?: { [key: string]: string } | null;
     event_detail?:          null | EventDetail;
-    event_time:             number;
+    event_time?:            number | null;
     event_type:             EventType;
     experiment_id?:         null | string;
     items:                  ProductDetailsRecoShow[];
@@ -578,9 +584,10 @@ export interface ProductDetailsRecoShow {
     canonical_product_uri?: null | string;
     categories?:            Array<string[]> | null;
     currency_code:          Currency;
-    exact_price:            ExactPrice;
     id:                     string;
     images?:                Image[] | null;
+    price:                  ExactPrice;
+    product_code:           string;
     rec_id:                 string;
     score?:                 number | null;
     strategies_used?:       { [key: string]: number } | null;
@@ -590,7 +597,7 @@ export interface ProductDetailsRecoShow {
 export interface RemoveFromCart {
     cart_id?:      null | string;
     event_detail?: null | EventDetail;
-    event_time:    number;
+    event_time?:   number | null;
     event_type:    EventType;
     items:         ItemDetails[];
     user_info:     UserInfo;
@@ -598,7 +605,7 @@ export interface RemoveFromCart {
 
 export interface RemoveFromList {
     event_detail?: null | EventDetail;
-    event_time:    number;
+    event_time?:   number | null;
     event_type:    EventType;
     items:         ItemDetails[];
     list_id?:      null | string;
@@ -608,7 +615,7 @@ export interface RemoveFromList {
 export interface CartPageView {
     cart_id?:      null | string;
     event_detail?: null | EventDetail;
-    event_time:    number;
+    event_time?:   number | null;
     event_type:    EventType;
     items:         ItemDetails[];
     user_info:     UserInfo;
@@ -616,7 +623,7 @@ export interface CartPageView {
 
 export interface SortItems {
     event_detail?: null | EventDetail;
-    event_time:    number;
+    event_time?:   number | null;
     event_type:    EventType;
     sort_order?:   SortOrder | null;
     user_info:     UserInfo;
@@ -635,7 +642,7 @@ export enum SortOrder {
 
 export interface UnknownEvent {
     event_detail?: null | EventDetail;
-    event_time:    number;
+    event_time?:   number | null;
     event_type:    EventType;
     user_info:     UserInfo;
 }
@@ -787,20 +794,20 @@ export class Convert {
         return uncast(value, r("ProductDetails"));
     }
 
-    public static toExactPrice(json: any): ExactPrice {
-        return cast(json, r("ExactPrice"));
-    }
-
-    public static exactPriceToJson(value: ExactPrice): any {
-        return uncast(value, r("ExactPrice"));
-    }
-
     public static toImage(json: any): Image {
         return cast(json, r("Image"));
     }
 
     public static imageToJson(value: Image): any {
         return uncast(value, r("Image"));
+    }
+
+    public static toExactPrice(json: any): ExactPrice {
+        return cast(json, r("ExactPrice"));
+    }
+
+    public static exactPriceToJson(value: ExactPrice): any {
+        return uncast(value, r("ExactPrice"));
     }
 
     public static toListView(json: any): ListView {
@@ -1124,7 +1131,7 @@ const typeMap: any = {
     "AddToCart": o([
         { json: "cart_id", js: "cart_id", typ: u(undefined, u(null, "")) },
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "items", js: "items", typ: a(r("ItemDetails")) },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
@@ -1158,7 +1165,7 @@ const typeMap: any = {
     ], "any"),
     "AddToList": o([
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "items", js: "items", typ: a(r("ItemDetails")) },
         { json: "list_id", js: "list_id", typ: "" },
@@ -1169,7 +1176,7 @@ const typeMap: any = {
     ], "any"),
     "CategoryPageView": o([
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "items", js: "items", typ: a(r("ItemDetails")) },
         { json: "on_screen", js: "on_screen", typ: true },
@@ -1179,7 +1186,7 @@ const typeMap: any = {
     "CheckoutStart": o([
         { json: "cart_id", js: "cart_id", typ: u(undefined, u(null, "")) },
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "items", js: "items", typ: a(r("ItemDetails")) },
         { json: "purchase_transaction", js: "purchase_transaction", typ: r("PurchaseTransaction") },
@@ -1202,7 +1209,7 @@ const typeMap: any = {
     ], "any"),
     "DetailProductView": o([
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "item", js: "item", typ: r("ItemDetails") },
         { json: "rec_id", js: "rec_id", typ: u(undefined, u(null, "")) },
@@ -1210,13 +1217,13 @@ const typeMap: any = {
     ], "any"),
     "HomePageView": o([
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
     "ImageInteraction": o([
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "item", js: "item", typ: r("ItemDetails") },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
@@ -1244,28 +1251,29 @@ const typeMap: any = {
         { json: "costs", js: "costs", typ: u(undefined, u(m(3.14), null)) },
         { json: "currency_code", js: "currency_code", typ: r("Currency") },
         { json: "description", js: "description", typ: u(undefined, u(null, "")) },
-        { json: "exact_price", js: "exact_price", typ: r("ExactPrice") },
         { json: "id", js: "id", typ: "" },
         { json: "images", js: "images", typ: u(undefined, u(a(r("Image")), null)) },
         { json: "item_group_id", js: "item_group_id", typ: u(undefined, u(null, "")) },
         { json: "language_code", js: "language_code", typ: u(undefined, u(null, "")) },
         { json: "numeric_attributes", js: "numeric_attributes", typ: u(undefined, u(m(3.14), null)) },
+        { json: "price", js: "price", typ: r("ExactPrice") },
+        { json: "product_code", js: "product_code", typ: u(undefined, u(null, "")) },
         { json: "stock_state", js: "stock_state", typ: r("StockState") },
         { json: "tags", js: "tags", typ: u(undefined, u(a(""), null)) },
         { json: "title", js: "title", typ: "" },
-    ], "any"),
-    "ExactPrice": o([
-        { json: "display_price", js: "display_price", typ: 3.14 },
-        { json: "original_price", js: "original_price", typ: 3.14 },
     ], "any"),
     "Image": o([
         { json: "height", js: "height", typ: "" },
         { json: "uri", js: "uri", typ: "" },
         { json: "width", js: "width", typ: "" },
     ], "any"),
+    "ExactPrice": o([
+        { json: "display_price", js: "display_price", typ: 3.14 },
+        { json: "original_price", js: "original_price", typ: 3.14 },
+    ], "any"),
     "ListView": o([
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "items", js: "items", typ: a(r("ItemDetails")) },
         { json: "list_id", js: "list_id", typ: "" },
@@ -1273,7 +1281,7 @@ const typeMap: any = {
     ], "any"),
     "OfflineRecommendationsRemove": o([
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "name", js: "name", typ: u(r("OfflineRecommendationsTypeEnum"), r("OfflineRecommendationsTypeObject")) },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
@@ -1283,7 +1291,7 @@ const typeMap: any = {
     ], "any"),
     "OfflineRecommendationsUpsert": o([
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "matrix", js: "matrix", typ: m(m(0)) },
         { json: "name", js: "name", typ: u(r("OfflineRecommendationsTypeEnum"), r("OfflineRecommendationsTypeObject")) },
@@ -1291,7 +1299,7 @@ const typeMap: any = {
     ], "any"),
     "OtherInteraction": o([
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "interaction_name", js: "interaction_name", typ: "" },
         { json: "item", js: "item", typ: r("ItemDetails") },
@@ -1299,20 +1307,20 @@ const typeMap: any = {
     ], "any"),
     "PageVisit": o([
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
     "PlacementRemove": o([
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "name", js: "name", typ: "" },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
     "PlacementUpsert": o([
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "name", js: "name", typ: "" },
         { json: "ranking", js: "ranking", typ: r("RankingStrategy") },
@@ -1330,7 +1338,7 @@ const typeMap: any = {
     "PurchaseComplete": o([
         { json: "cart_id", js: "cart_id", typ: u(undefined, u(null, "")) },
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "items", js: "items", typ: a(r("ItemDetails")) },
         { json: "purchase_transaction", js: "purchase_transaction", typ: r("PurchaseTransaction") },
@@ -1339,7 +1347,7 @@ const typeMap: any = {
     "RateProduct": o([
         { json: "comment", js: "comment", typ: u(undefined, u(null, "")) },
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "item", js: "item", typ: r("ItemDetails") },
         { json: "rating", js: "rating", typ: u(undefined, u(3.14, null)) },
@@ -1348,7 +1356,7 @@ const typeMap: any = {
     "RecoRequest": o([
         { json: "additional_uri_params", js: "additional_uri_params", typ: u(undefined, u(m(""), null)) },
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "location", js: "location", typ: u(r("LocationEnum"), r("LocationObject")) },
         { json: "n_items", js: "n_items", typ: 0 },
@@ -1358,7 +1366,7 @@ const typeMap: any = {
     "LocationObject": o([
         { json: "ProductPage", js: "ProductPage", typ: u(undefined, "") },
         { json: "AddToCart", js: "AddToCart", typ: u(undefined, "") },
-        { json: "CategoryPage", js: "CategoryPage", typ: u(undefined, "") },
+        { json: "CategoryPage", js: "CategoryPage", typ: u(undefined, a("")) },
         { json: "SearchPage", js: "SearchPage", typ: u(undefined, r("SearchInfo")) },
         { json: "CheckoutPage", js: "CheckoutPage", typ: u(undefined, a("")) },
         { json: "OtherPage", js: "OtherPage", typ: u(undefined, r("PageInfo")) },
@@ -1374,7 +1382,7 @@ const typeMap: any = {
     "RecoShow": o([
         { json: "additional_uri_params", js: "additional_uri_params", typ: u(undefined, u(m(""), null)) },
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "experiment_id", js: "experiment_id", typ: u(undefined, u(null, "")) },
         { json: "items", js: "items", typ: a(r("ProductDetailsRecoShow")) },
@@ -1386,9 +1394,10 @@ const typeMap: any = {
         { json: "canonical_product_uri", js: "canonical_product_uri", typ: u(undefined, u(null, "")) },
         { json: "categories", js: "categories", typ: u(undefined, u(a(a("")), null)) },
         { json: "currency_code", js: "currency_code", typ: r("Currency") },
-        { json: "exact_price", js: "exact_price", typ: r("ExactPrice") },
         { json: "id", js: "id", typ: "" },
         { json: "images", js: "images", typ: u(undefined, u(a(r("Image")), null)) },
+        { json: "price", js: "price", typ: r("ExactPrice") },
+        { json: "product_code", js: "product_code", typ: "" },
         { json: "rec_id", js: "rec_id", typ: "" },
         { json: "score", js: "score", typ: u(undefined, u(3.14, null)) },
         { json: "strategies_used", js: "strategies_used", typ: u(undefined, u(m(3.14), null)) },
@@ -1397,14 +1406,14 @@ const typeMap: any = {
     "RemoveFromCart": o([
         { json: "cart_id", js: "cart_id", typ: u(undefined, u(null, "")) },
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "items", js: "items", typ: a(r("ItemDetails")) },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
     "RemoveFromList": o([
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "items", js: "items", typ: a(r("ItemDetails")) },
         { json: "list_id", js: "list_id", typ: u(undefined, u(null, "")) },
@@ -1413,21 +1422,21 @@ const typeMap: any = {
     "CartPageView": o([
         { json: "cart_id", js: "cart_id", typ: u(undefined, u(null, "")) },
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "items", js: "items", typ: a(r("ItemDetails")) },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
     "SortItems": o([
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "sort_order", js: "sort_order", typ: u(undefined, u(r("SortOrder"), null)) },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
     "UnknownEvent": o([
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
-        { json: "event_time", js: "event_time", typ: 0 },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
@@ -1654,10 +1663,15 @@ const typeMap: any = {
         "AlsoAddedToCart",
         "AlsoPurchased",
         "AlsoSeen",
+        "BestsellerCategory",
+        "BestsellerGlobal",
         "ContentMatching",
         "MostPurchases",
         "MostViews",
+        "SearchMatching",
         "SeenInSession",
+        "SeenInSessionCoccurAddedToCart",
+        "SeenInSessionCoccurSeen",
         "SimilarAttributes",
         "SimilarImage",
         "SimilarText",
