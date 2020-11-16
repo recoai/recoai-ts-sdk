@@ -1,6 +1,6 @@
 // To parse this data:
 //
-//   import { Convert, AddToCart, AddToList, APISettings, CategoryPageView, CheckoutStart, DetailProductView, HomePageView, ImageInteraction, RemoveItem, UpsertItem, ListView, OfflineRecommendationsRemove, OfflineRecommendationsUpsert, OtherInteraction, PageVisit, PlacementRemove, PlacementUpsert, PurchaseComplete, RateProduct, RecoRequest, RecoShow, RemoveFromCart, RemoveFromList, CartPageView, SortItems, UnknownEvent } from "./file";
+//   import { Convert, AddToCart, AddToList, APISettings, CategoryPageView, CheckoutStart, DetailProductView, HomePageView, ImageInteraction, RemoveItem, UpsertItem, ListView, OfflineRecommendationsRemove, OfflineRecommendationsUpsert, OtherInteraction, PageVisit, PlacementRemove, PlacementUpsert, PurchaseComplete, RateProduct, RecoRequest, RecoShow, RemoveFromCart, RemoveFromList, SearchItems, CartPageView, SortItems, UnknownEvent } from "./file";
 //
 //   const addToCart = Convert.toAddToCart(json);
 //   const addToList = Convert.toAddToList(json);
@@ -26,6 +26,7 @@
 //   const recoShow = Convert.toRecoShow(json);
 //   const removeFromCart = Convert.toRemoveFromCart(json);
 //   const removeFromList = Convert.toRemoveFromList(json);
+//   const searchItems = Convert.toSearchItems(json);
 //   const cartPageView = Convert.toCartPageView(json);
 //   const sortItems = Convert.toSortItems(json);
 //   const unknownEvent = Convert.toUnknownEvent(json);
@@ -73,6 +74,7 @@ export enum EventType {
     RecoShow = "RecoShow",
     RemoveFromCart = "RemoveFromCart",
     RemoveFromList = "RemoveFromList",
+    SearchItems = "SearchItems",
     SortItems = "SortItems",
     UnknownEvent = "UnknownEvent",
 }
@@ -612,6 +614,15 @@ export interface RemoveFromList {
     user_info:     UserInfo;
 }
 
+export interface SearchItems {
+    event_detail?: null | EventDetail;
+    event_time?:   number | null;
+    event_type:    EventType;
+    items:         ItemDetails[];
+    query:         string;
+    user_info:     UserInfo;
+}
+
 export interface CartPageView {
     cart_id?:      null | string;
     event_detail?: null | EventDetail;
@@ -968,6 +979,14 @@ export class Convert {
 
     public static removeFromListToJson(value: RemoveFromList): any {
         return uncast(value, r("RemoveFromList"));
+    }
+
+    public static toSearchItems(json: any): SearchItems {
+        return cast(json, r("SearchItems"));
+    }
+
+    public static searchItemsToJson(value: SearchItems): any {
+        return uncast(value, r("SearchItems"));
     }
 
     public static toCartPageView(json: any): CartPageView {
@@ -1419,6 +1438,14 @@ const typeMap: any = {
         { json: "list_id", js: "list_id", typ: u(undefined, u(null, "")) },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
+    "SearchItems": o([
+        { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
+        { json: "event_type", js: "event_type", typ: r("EventType") },
+        { json: "items", js: "items", typ: a(r("ItemDetails")) },
+        { json: "query", js: "query", typ: "" },
+        { json: "user_info", js: "user_info", typ: r("UserInfo") },
+    ], "any"),
     "CartPageView": o([
         { json: "cart_id", js: "cart_id", typ: u(undefined, u(null, "")) },
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
@@ -1464,6 +1491,7 @@ const typeMap: any = {
         "RecoShow",
         "RemoveFromCart",
         "RemoveFromList",
+        "SearchItems",
         "SortItems",
         "UnknownEvent",
     ],
