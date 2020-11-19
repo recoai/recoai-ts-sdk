@@ -27,7 +27,6 @@ export interface PlacementConfig {
   template: string;
   api_endpoint: string;
   url_prefix: string;
-  additional_uri_params?: null | object;
 }
 
 function injectRecommendations(config: PlacementConfig, data: RecoShow) {
