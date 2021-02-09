@@ -47,7 +47,7 @@ export interface AddToCart {
 export interface EventDetail {
     event_attributes?: { [key: string]: string } | null;
     experiment_ids?:   number | null;
-    rec_id?:           null | string;
+    rec_id:            string;
     url:               string;
 }
 
@@ -1180,7 +1180,7 @@ const typeMap: any = {
     "EventDetail": o([
         { json: "event_attributes", js: "event_attributes", typ: u(undefined, u(m(""), null)) },
         { json: "experiment_ids", js: "experiment_ids", typ: u(undefined, u(0, null)) },
-        { json: "rec_id", js: "rec_id", typ: u(undefined, u(null, "")) },
+        { json: "rec_id", js: "rec_id", typ: "" },
         { json: "url", js: "url", typ: "" },
     ], "any"),
     "ItemDetails": o([
