@@ -1,6 +1,6 @@
 // To parse this data:
 //
-//   import { Convert, AddToCart, AddToList, APISettings, CategoryPageView, ChangeItemStockState, CheckoutStart, DetailProductView, HomePageView, ImageInteraction, RemoveItem, UpsertItem, ListView, OfflineRecommendationsRemove, OfflineRecommendationsUpsert, OtherInteraction, PageVisit, PlacementRemove, PlacementUpsert, PurchaseComplete, RateProduct, RecoRequest, RecoShow, RemoveFromCart, RemoveFromList, SearchItems, CartPageView, SortItems, UnknownEvent } from "./file";
+//   import { Convert, AddToCart, AddToList, APISettings, CategoryPageView, ChangeItemStockState, CheckoutStart, DetailProductView, HomePageView, ImageInteraction, RemoveItem, UpsertItem, ListView, OfflineRecommendationsRemove, OfflineRecommendationsUpsert, OtherInteraction, PageVisit, PlacementRemove, PlacementUpsert, PurchaseComplete, RateProduct, RecoRequest, RecoShow, RemoveFromCart, RemoveFromList, SearchItems, CartPageView, SmartSearchRequest, SmartSearchShow, SortItems, UnknownEvent } from "./file";
 //
 //   const addToCart = Convert.toAddToCart(json);
 //   const addToList = Convert.toAddToList(json);
@@ -29,6 +29,8 @@
 //   const removeFromList = Convert.toRemoveFromList(json);
 //   const searchItems = Convert.toSearchItems(json);
 //   const cartPageView = Convert.toCartPageView(json);
+//   const smartSearchRequest = Convert.toSmartSearchRequest(json);
+//   const smartSearchShow = Convert.toSmartSearchShow(json);
 //   const sortItems = Convert.toSortItems(json);
 //   const unknownEvent = Convert.toUnknownEvent(json);
 //
@@ -77,6 +79,8 @@ export enum EventType {
     RemoveFromCart = "RemoveFromCart",
     RemoveFromList = "RemoveFromList",
     SearchItems = "SearchItems",
+    SmartSearchRequest = "SmartSearchRequest",
+    SmartSearchShow = "SmartSearchShow",
     SortItems = "SortItems",
     UnknownEvent = "UnknownEvent",
 }
@@ -646,6 +650,40 @@ export interface CartPageView {
     user_info:     UserInfo;
 }
 
+export interface SmartSearchRequest {
+    event_detail?: null | EventDetail;
+    event_time?:   number | null;
+    event_type:    EventType;
+    filter:        { [key: string]: string };
+    n_items:       number;
+    page:          number;
+    query:         string;
+    search_order:  SearchOrder;
+    user_info:     UserInfo;
+}
+
+export enum SearchOrder {
+    Newest = "Newest",
+    Oldest = "Oldest",
+    Personalized = "Personalized",
+    PopularityAsc = "PopularityAsc",
+    PopularityDesc = "PopularityDesc",
+    PriceAsc = "PriceAsc",
+    PriceDesc = "PriceDesc",
+    RatingAsc = "RatingAsc",
+    RatingDesc = "RatingDesc",
+    RelevanceAsc = "RelevanceAsc",
+    RelevanceDesc = "RelevanceDesc",
+}
+
+export interface SmartSearchShow {
+    event_detail?: null | EventDetail;
+    event_time?:   number | null;
+    event_type:    EventType;
+    items:         ProductDetailsRecoShow[];
+    user_info:     UserInfo;
+}
+
 export interface SortItems {
     event_detail?: null | EventDetail;
     event_time?:   number | null;
@@ -1017,6 +1055,22 @@ export class Convert {
 
     public static cartPageViewToJson(value: CartPageView): any {
         return uncast(value, r("CartPageView"));
+    }
+
+    public static toSmartSearchRequest(json: any): SmartSearchRequest {
+        return cast(json, r("SmartSearchRequest"));
+    }
+
+    public static smartSearchRequestToJson(value: SmartSearchRequest): any {
+        return uncast(value, r("SmartSearchRequest"));
+    }
+
+    public static toSmartSearchShow(json: any): SmartSearchShow {
+        return cast(json, r("SmartSearchShow"));
+    }
+
+    public static smartSearchShowToJson(value: SmartSearchShow): any {
+        return uncast(value, r("SmartSearchShow"));
     }
 
     public static toSortItems(json: any): SortItems {
@@ -1487,6 +1541,24 @@ const typeMap: any = {
         { json: "items", js: "items", typ: a(r("ItemDetails")) },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
+    "SmartSearchRequest": o([
+        { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
+        { json: "event_type", js: "event_type", typ: r("EventType") },
+        { json: "filter", js: "filter", typ: m("") },
+        { json: "n_items", js: "n_items", typ: 0 },
+        { json: "page", js: "page", typ: 0 },
+        { json: "query", js: "query", typ: "" },
+        { json: "search_order", js: "search_order", typ: r("SearchOrder") },
+        { json: "user_info", js: "user_info", typ: r("UserInfo") },
+    ], "any"),
+    "SmartSearchShow": o([
+        { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
+        { json: "event_type", js: "event_type", typ: r("EventType") },
+        { json: "items", js: "items", typ: a(r("ProductDetailsRecoShow")) },
+        { json: "user_info", js: "user_info", typ: r("UserInfo") },
+    ], "any"),
     "SortItems": o([
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
         { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
@@ -1526,6 +1598,8 @@ const typeMap: any = {
         "RemoveFromCart",
         "RemoveFromList",
         "SearchItems",
+        "SmartSearchRequest",
+        "SmartSearchShow",
         "SortItems",
         "UnknownEvent",
     ],
@@ -1741,6 +1815,19 @@ const typeMap: any = {
     "LocationEnum": [
         "Error404",
         "HomePage",
+    ],
+    "SearchOrder": [
+        "Newest",
+        "Oldest",
+        "Personalized",
+        "PopularityAsc",
+        "PopularityDesc",
+        "PriceAsc",
+        "PriceDesc",
+        "RatingAsc",
+        "RatingDesc",
+        "RelevanceAsc",
+        "RelevanceDesc",
     ],
     "SortOrder": [
         "NameAsc",
