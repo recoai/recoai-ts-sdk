@@ -30,6 +30,10 @@ function _generateCustomerIdentifier() {
   return customer;
 }
 
+function _generateCustomerPrivacySetting() {
+  return "NonPersonalized";
+}
+
 export function getCustomerIdentifier() {
   let customer = localStorage.getItem('recoaiCustomerIdentifier');
   if (!customer) {
@@ -38,6 +42,16 @@ export function getCustomerIdentifier() {
   }
 
   return customer;
+}
+
+export function getCustomerPrivacySetting() {
+  let customerPrivacySetting = localStorage.getItem("recoaiCustomerPrivacySetting");
+  if (!customerPrivacySetting) {
+    customerPrivacySetting = _generateCustomerPrivacySetting();
+    localStorage.setItem("recoaiCustomerPrivacySetting", customerPrivacySetting);
+  }
+
+  return customerPrivacySetting;
 }
 
 export function extractCategory() {
