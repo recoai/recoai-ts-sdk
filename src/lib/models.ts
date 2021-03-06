@@ -1,6 +1,6 @@
 // To parse this data:
 //
-//   import { Convert, AddToCart, AddToList, APISettings, CategoryPageView, ChangeItemStockState, CheckoutStart, DetailProductView, HomePageView, ImageInteraction, RemoveItem, UpsertItem, ListView, OfflineRecommendationsRemove, OfflineRecommendationsUpsert, OtherInteraction, PageVisit, PlacementRemove, PlacementUpsert, PurchaseComplete, RateProduct, RecoRequest, RecoShow, RemoveFromCart, RemoveFromList, SearchItems, CartPageView, SmartSearchRequest, SmartSearchShow, SortItems, UnknownEvent } from "./file";
+//   import { Convert, AddToCart, AddToList, APISettings, CategoryPageView, ChangeItemStockState, CheckoutStart, DetailProductView, HomePageView, ImageInteraction, RemoveItem, UpsertItem, ListView, OfflineRecommendationsRemove, OfflineRecommendationsUpsert, OtherInteraction, PageVisit, PlacementRemove, PlacementUpsert, PurchaseComplete, RankingModelTrainRequest, RateProduct, RecoRequest, RecoShow, RemoveFromCart, RemoveFromList, SearchItems, CartPageView, SmartSearchRequest, SmartSearchShow, SortItems, UnknownEvent } from "./file";
 //
 //   const addToCart = Convert.toAddToCart(json);
 //   const addToList = Convert.toAddToList(json);
@@ -22,6 +22,7 @@
 //   const placementRemove = Convert.toPlacementRemove(json);
 //   const placementUpsert = Convert.toPlacementUpsert(json);
 //   const purchaseComplete = Convert.toPurchaseComplete(json);
+//   const rankingModelTrainRequest = Convert.toRankingModelTrainRequest(json);
 //   const rateProduct = Convert.toRateProduct(json);
 //   const recoRequest = Convert.toRecoRequest(json);
 //   const recoShow = Convert.toRecoShow(json);
@@ -49,7 +50,7 @@ export interface AddToCart {
 export interface EventDetail {
     event_attributes?: { [key: string]: string } | null;
     experiment_ids?:   number | null;
-    rec_id:            string;
+    rec_id?:           null | string;
     url:               string;
 }
 
@@ -73,6 +74,7 @@ export enum EventType {
     PlacementRemove = "PlacementRemove",
     PlacementUpsert = "PlacementUpsert",
     PurchaseComplete = "PurchaseComplete",
+    RankingModelTrainRequest = "RankingModelTrainRequest",
     RateProduct = "RateProduct",
     RecoRequest = "RecoRequest",
     RecoShow = "RecoShow",
@@ -541,6 +543,54 @@ export interface PurchaseComplete {
     user_info:            UserInfo;
 }
 
+export interface RankingModelTrainRequest {
+    event_detail?: null | EventDetail;
+    event_time?:   number | null;
+    event_type:    EventType;
+    model:         RankingModel;
+    user_info:     UserInfo;
+}
+
+export interface RankingModel {
+    XGBoost: XGBoostParams;
+}
+
+export interface XGBoostParams {
+    boost_rounds:            number;
+    booster_type:            XGBoostBoosterType;
+    dart_one_drop?:          boolean | null;
+    dart_rate_drop?:         number | null;
+    dart_skip_drop?:         number | null;
+    objective:               XGBoostObjective;
+    tree_alpha?:             number | null;
+    tree_colsample_bylevel?: number | null;
+    tree_colsample_bytree?:  number | null;
+    tree_eta?:               number | null;
+    tree_gamma?:             number | null;
+    tree_lambda?:            number | null;
+    tree_max_bin?:           number | null;
+    tree_max_depth?:         number | null;
+    tree_min_child_weight?:  number | null;
+    tree_subsample?:         number | null;
+}
+
+/**
+ * We want to flatten all (or most) of the XGBoost parameters
+ */
+export enum XGBoostBoosterType {
+    Dart = "Dart",
+    Linear = "Linear",
+    Tree = "Tree",
+}
+
+export enum XGBoostObjective {
+    BinaryLogistic = "BinaryLogistic",
+    BinaryLogisticRaw = "BinaryLogisticRaw",
+    RankPairwise = "RankPairwise",
+    RegLinear = "RegLinear",
+    RegLogistic = "RegLogistic",
+}
+
 export interface RateProduct {
     comment?:      null | string;
     event_detail?: null | EventDetail;
@@ -969,6 +1019,30 @@ export class Convert {
         return uncast(value, r("PurchaseComplete"));
     }
 
+    public static toRankingModelTrainRequest(json: any): RankingModelTrainRequest {
+        return cast(json, r("RankingModelTrainRequest"));
+    }
+
+    public static rankingModelTrainRequestToJson(value: RankingModelTrainRequest): any {
+        return uncast(value, r("RankingModelTrainRequest"));
+    }
+
+    public static toRankingModel(json: any): RankingModel {
+        return cast(json, r("RankingModel"));
+    }
+
+    public static rankingModelToJson(value: RankingModel): any {
+        return uncast(value, r("RankingModel"));
+    }
+
+    public static toXGBoostParams(json: any): XGBoostParams {
+        return cast(json, r("XGBoostParams"));
+    }
+
+    public static xGBoostParamsToJson(value: XGBoostParams): any {
+        return uncast(value, r("XGBoostParams"));
+    }
+
     public static toRateProduct(json: any): RateProduct {
         return cast(json, r("RateProduct"));
     }
@@ -1234,7 +1308,7 @@ const typeMap: any = {
     "EventDetail": o([
         { json: "event_attributes", js: "event_attributes", typ: u(undefined, u(m(""), null)) },
         { json: "experiment_ids", js: "experiment_ids", typ: u(undefined, u(0, null)) },
-        { json: "rec_id", js: "rec_id", typ: "" },
+        { json: "rec_id", js: "rec_id", typ: u(undefined, u(null, "")) },
         { json: "url", js: "url", typ: "" },
     ], "any"),
     "ItemDetails": o([
@@ -1448,6 +1522,34 @@ const typeMap: any = {
         { json: "purchase_transaction", js: "purchase_transaction", typ: r("PurchaseTransaction") },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
+    "RankingModelTrainRequest": o([
+        { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
+        { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
+        { json: "event_type", js: "event_type", typ: r("EventType") },
+        { json: "model", js: "model", typ: r("RankingModel") },
+        { json: "user_info", js: "user_info", typ: r("UserInfo") },
+    ], "any"),
+    "RankingModel": o([
+        { json: "XGBoost", js: "XGBoost", typ: r("XGBoostParams") },
+    ], "any"),
+    "XGBoostParams": o([
+        { json: "boost_rounds", js: "boost_rounds", typ: 0 },
+        { json: "booster_type", js: "booster_type", typ: r("XGBoostBoosterType") },
+        { json: "dart_one_drop", js: "dart_one_drop", typ: u(undefined, u(true, null)) },
+        { json: "dart_rate_drop", js: "dart_rate_drop", typ: u(undefined, u(3.14, null)) },
+        { json: "dart_skip_drop", js: "dart_skip_drop", typ: u(undefined, u(3.14, null)) },
+        { json: "objective", js: "objective", typ: r("XGBoostObjective") },
+        { json: "tree_alpha", js: "tree_alpha", typ: u(undefined, u(0, null)) },
+        { json: "tree_colsample_bylevel", js: "tree_colsample_bylevel", typ: u(undefined, u(3.14, null)) },
+        { json: "tree_colsample_bytree", js: "tree_colsample_bytree", typ: u(undefined, u(3.14, null)) },
+        { json: "tree_eta", js: "tree_eta", typ: u(undefined, u(3.14, null)) },
+        { json: "tree_gamma", js: "tree_gamma", typ: u(undefined, u(0, null)) },
+        { json: "tree_lambda", js: "tree_lambda", typ: u(undefined, u(0, null)) },
+        { json: "tree_max_bin", js: "tree_max_bin", typ: u(undefined, u(0, null)) },
+        { json: "tree_max_depth", js: "tree_max_depth", typ: u(undefined, u(0, null)) },
+        { json: "tree_min_child_weight", js: "tree_min_child_weight", typ: u(undefined, u(0, null)) },
+        { json: "tree_subsample", js: "tree_subsample", typ: u(undefined, u(3.14, null)) },
+    ], "any"),
     "RateProduct": o([
         { json: "comment", js: "comment", typ: u(undefined, u(null, "")) },
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
@@ -1592,6 +1694,7 @@ const typeMap: any = {
         "PlacementRemove",
         "PlacementUpsert",
         "PurchaseComplete",
+        "RankingModelTrainRequest",
         "RateProduct",
         "RecoRequest",
         "RecoShow",
@@ -1811,6 +1914,18 @@ const typeMap: any = {
         "SimilarAttributes",
         "SimilarImage",
         "SimilarText",
+    ],
+    "XGBoostBoosterType": [
+        "Dart",
+        "Linear",
+        "Tree",
+    ],
+    "XGBoostObjective": [
+        "BinaryLogistic",
+        "BinaryLogisticRaw",
+        "RankPairwise",
+        "RegLinear",
+        "RegLogistic",
     ],
     "LocationEnum": [
         "Error404",
