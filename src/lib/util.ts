@@ -43,7 +43,7 @@ export function getCustomerIdentifier() {
 export function getCustomerPrivacySetting() {
   let customerPrivacySetting = localStorage.getItem("recoaiCustomerPrivacySetting");
   if (!customerPrivacySetting) {
-    customerPrivacySetting = PrivacySetting.NonPersonalized;
+    customerPrivacySetting = PrivacySetting.Personalized;
     localStorage.setItem("recoaiCustomerPrivacySetting", customerPrivacySetting);
   }
   return customerPrivacySetting;
