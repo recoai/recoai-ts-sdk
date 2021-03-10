@@ -666,6 +666,7 @@ export interface ProductDetailsRecoShow {
     rec_id:                             string;
     score?:                             number | null;
     strategies_used?:                   { [key: string]: number } | null;
+    strategy_selected:                  string;
     title:                              string;
     url_params?:                        null | string;
 }
@@ -1615,6 +1616,7 @@ const typeMap: any = {
         { json: "rec_id", js: "rec_id", typ: "" },
         { json: "score", js: "score", typ: u(undefined, u(3.14, null)) },
         { json: "strategies_used", js: "strategies_used", typ: u(undefined, u(m(3.14), null)) },
+        { json: "strategy_selected", js: "strategy_selected", typ: "" },
         { json: "title", js: "title", typ: "" },
         { json: "url_params", js: "url_params", typ: u(undefined, u(null, "")) },
     ], "any"),
