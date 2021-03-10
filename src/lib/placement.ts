@@ -75,10 +75,11 @@ function handlePlacement(apiSettings: APISettings, config: PlacementConfig) {
       error: function () {},
       success: function (data) {
         console.log('Response', data);
-        // var dataParsed = JSON.parse(data);
         let recoShow = Convert.toRecoShow(data);
         console.log('recoShow', recoShow);
         if (recoShow.items.length > 0) {
+          // make sure that we only show not more than n_items
+          recoShow.items = recoShow.items.slice(0, config.n_items);
           injectRecommendations(config, recoShow);
         }
       },
