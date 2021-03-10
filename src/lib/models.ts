@@ -269,6 +269,7 @@ export enum Currency {
 
 export interface UserInfo {
     additional_info?: null | UserAdditionalInfo;
+    privacy_setting?: PrivacySetting | null;
     session_id?:      null | string;
     user_id?:         null | string;
     visitor_id:       string;
@@ -287,6 +288,11 @@ export enum Gender {
     Female = "Female",
     Male = "Male",
     Other = "Other",
+}
+
+export enum PrivacySetting {
+    NonPersonalized = "NonPersonalized",
+    Personalized = "Personalized",
 }
 
 export interface AddToList {
@@ -1320,6 +1326,7 @@ const typeMap: any = {
     ], "any"),
     "UserInfo": o([
         { json: "additional_info", js: "additional_info", typ: u(undefined, u(null, r("UserAdditionalInfo"))) },
+        { json: "privacy_setting", js: "privacy_setting", typ: u(undefined, u(r("PrivacySetting"), null)) },
         { json: "session_id", js: "session_id", typ: u(undefined, u(null, "")) },
         { json: "user_id", js: "user_id", typ: u(undefined, u(null, "")) },
         { json: "visitor_id", js: "visitor_id", typ: "" },
@@ -1881,6 +1888,10 @@ const typeMap: any = {
         "Female",
         "Male",
         "Other",
+    ],
+    "PrivacySetting": [
+        "NonPersonalized",
+        "Personalized",
     ],
     "StockState": [
         "BackOrder",

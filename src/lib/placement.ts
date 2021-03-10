@@ -1,5 +1,5 @@
 import * as Sqrl from 'squirrelly';
-import { getCustomerIdentifier } from './util';
+import { getCustomerIdentifier, getCustomerPrivacySetting } from './util';
 import {
   RecoShow,
   RecoRequest,
@@ -9,6 +9,7 @@ import {
   UserInfo,
   LocationObject,
   Convert,
+  PrivacySetting
 } from './models';
 
 Sqrl.filters.define('pln_currency', function (amount) {
@@ -51,6 +52,7 @@ function handlePlacement(apiSettings: APISettings, config: PlacementConfig) {
 
   var user_info: UserInfo = {
     visitor_id: getCustomerIdentifier(),
+    privacy_setting: <PrivacySetting>getCustomerPrivacySetting()
   };
 
   var reco_request: RecoRequest = {

@@ -1,4 +1,4 @@
-import { APISettings } from './models';
+import { APISettings, PrivacySetting } from './models';
 
 export function shuffle(array) {
   var currentIndex = array.length,
@@ -38,6 +38,19 @@ export function getCustomerIdentifier() {
   }
 
   return customer;
+}
+
+export function getCustomerPrivacySetting() {
+  let customerPrivacySetting = localStorage.getItem("recoaiCustomerPrivacySetting");
+  if (!customerPrivacySetting) {
+    customerPrivacySetting = PrivacySetting.Personalized;
+    localStorage.setItem("recoaiCustomerPrivacySetting", customerPrivacySetting);
+  }
+  return customerPrivacySetting;
+}
+
+export function setCustomerPrivacySetting(setting) {
+  localStorage.setItem("recoaiCustomerPrivacySetting", setting);
 }
 
 export function extractCategory() {
