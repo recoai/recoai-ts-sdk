@@ -74,7 +74,7 @@ export function sendTrackingEvent(params, apiSettings: APISettings) {
   });
 }
 
-function extractRecoIDFromString(s) {
+function extractRecoIDFromString(s): string | null {
   var match = s.match(/rec=([A-Z0-9a-z]+)/);
   if (match && match.length == 2) {
     return match[1];
@@ -83,6 +83,6 @@ function extractRecoIDFromString(s) {
   }
 }
 
-export function extractRecoID() {
+export function extractRecoID(): string | null {
   return extractRecoIDFromString(window.location.search);
 }
