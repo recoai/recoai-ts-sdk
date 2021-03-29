@@ -1,10 +1,13 @@
 // To parse this data:
 //
-//   import { Convert, AddToCart, AddToList, APISettings, CategoryPageView, ChangeItemStockState, CheckoutStart, DetailProductView, HomePageView, ImageInteraction, RemoveItem, UpsertItem, ListView, OfflineRecommendationsRemove, OfflineRecommendationsUpsert, OtherInteraction, PageVisit, PlacementRemove, PlacementUpsert, PurchaseComplete, RankingModelTrainRequest, RateProduct, RecoRequest, RecoShow, RemoveFromCart, RemoveFromList, SearchItems, CartPageView, SmartSearchRequest, SmartSearchShow, SortItems, UnknownEvent } from "./file";
+//   import { Convert, AddToCart, AddToList, APISettings, BuilderFn1, BuilderFn2, BuilderVariable, CategoryPageView, ChangeItemStockState, CheckoutStart, DetailProductView, HomePageView, ImageInteraction, RemoveItem, UpsertItem, ListView, OfflineRecommendationsRemove, OfflineRecommendationsUpsert, OtherInteraction, PageVisit, PlacementRemove, PlacementUpsert, PurchaseComplete, RankingModelTrainRequest, RateProduct, RecoRequest, RecoShow, RemoveFromCart, RemoveFromList, SearchItems, CartPageView, SmartSearchRequest, SmartSearchShow, SortItems, UnknownEvent } from "./file";
 //
 //   const addToCart = Convert.toAddToCart(json);
 //   const addToList = Convert.toAddToList(json);
 //   const aPISettings = Convert.toAPISettings(json);
+//   const builderFn1 = Convert.toBuilderFn1(json);
+//   const builderFn2 = Convert.toBuilderFn2(json);
+//   const builderVariable = Convert.toBuilderVariable(json);
 //   const categoryPageView = Convert.toCategoryPageView(json);
 //   const changeItemStockState = Convert.toChangeItemStockState(json);
 //   const checkoutStart = Convert.toCheckoutStart(json);
@@ -308,6 +311,35 @@ export interface APISettings {
     url_api: string;
 }
 
+export enum BuilderFn1 {
+    ArgMax = "ArgMax",
+    ArgMin = "ArgMin",
+    Invert = "Invert",
+}
+
+export enum BuilderFn2 {
+    Expand = "Expand",
+    Intersect = "Intersect",
+    Less = "Less",
+    LessEq = "LessEq",
+    Lookup = "Lookup",
+    More = "More",
+    MoreEq = "MoreEq",
+    Remove = "Remove",
+    Union = "Union",
+}
+
+export enum BuilderVariable {
+    ItemCurrent = "ItemCurrent",
+    ItemsAlsoAddedToCartInSession = "ItemsAlsoAddedToCartInSession",
+    ItemsAlsoBoughtInSession = "ItemsAlsoBoughtInSession",
+    ItemsAlsoSeenInSession = "ItemsAlsoSeenInSession",
+    ItemsInCart = "ItemsInCart",
+    ItemsRecommendedSessionCounter = "ItemsRecommendedSessionCounter",
+    ItemsSeenInSession = "ItemsSeenInSession",
+    ItemsVisitedCounter = "ItemsVisitedCounter",
+}
+
 export interface CategoryPageView {
     event_detail?:    null | EventDetail;
     event_time?:      number | null;
@@ -535,8 +567,9 @@ export enum GenericStrategyEnum {
 }
 
 export interface GenericStrategyObject {
-    SimilarOffline?: string;
-    Query?:          string;
+    SimilarOffline?:  string;
+    Query?:           string;
+    StrategyBuilder?: string;
 }
 
 export interface PurchaseComplete {
@@ -665,10 +698,16 @@ export interface ProductDetailsRecoShow {
     product_code:                       string;
     rec_id:                             string;
     score?:                             number | null;
-    strategies_used?:                   { [key: string]: number } | null;
+    strategies_used?:                   Array<Array<number | GenericStrategyEnum | StrategiesUsedObject>> | null;
     strategy_selected:                  string;
     title:                              string;
     url_params?:                        null | string;
+}
+
+export interface StrategiesUsedObject {
+    SimilarOffline?:  string;
+    Query?:           string;
+    StrategyBuilder?: string;
 }
 
 export interface RemoveFromCart {
@@ -1106,6 +1145,14 @@ export class Convert {
         return uncast(value, r("ProductDetailsRecoShow"));
     }
 
+    public static toStrategiesUsedObject(json: any): StrategiesUsedObject {
+        return cast(json, r("StrategiesUsedObject"));
+    }
+
+    public static strategiesUsedObjectToJson(value: StrategiesUsedObject): any {
+        return uncast(value, r("StrategiesUsedObject"));
+    }
+
     public static toRemoveFromCart(json: any): RemoveFromCart {
         return cast(json, r("RemoveFromCart"));
     }
@@ -1520,6 +1567,7 @@ const typeMap: any = {
     "GenericStrategyObject": o([
         { json: "SimilarOffline", js: "SimilarOffline", typ: u(undefined, "") },
         { json: "Query", js: "Query", typ: u(undefined, "") },
+        { json: "StrategyBuilder", js: "StrategyBuilder", typ: u(undefined, "") },
     ], "any"),
     "PurchaseComplete": o([
         { json: "cart_id", js: "cart_id", typ: u(undefined, u(null, "")) },
@@ -1615,10 +1663,15 @@ const typeMap: any = {
         { json: "product_code", js: "product_code", typ: "" },
         { json: "rec_id", js: "rec_id", typ: "" },
         { json: "score", js: "score", typ: u(undefined, u(3.14, null)) },
-        { json: "strategies_used", js: "strategies_used", typ: u(undefined, u(m(3.14), null)) },
+        { json: "strategies_used", js: "strategies_used", typ: u(undefined, u(a(a(u(3.14, r("GenericStrategyEnum"), r("StrategiesUsedObject")))), null)) },
         { json: "strategy_selected", js: "strategy_selected", typ: "" },
         { json: "title", js: "title", typ: "" },
         { json: "url_params", js: "url_params", typ: u(undefined, u(null, "")) },
+    ], "any"),
+    "StrategiesUsedObject": o([
+        { json: "SimilarOffline", js: "SimilarOffline", typ: u(undefined, "") },
+        { json: "Query", js: "Query", typ: u(undefined, "") },
+        { json: "StrategyBuilder", js: "StrategyBuilder", typ: u(undefined, "") },
     ], "any"),
     "RemoveFromCart": o([
         { json: "cart_id", js: "cart_id", typ: u(undefined, u(null, "")) },
@@ -1894,6 +1947,32 @@ const typeMap: any = {
     "PrivacySetting": [
         "NonPersonalized",
         "Personalized",
+    ],
+    "BuilderFn1": [
+        "ArgMax",
+        "ArgMin",
+        "Invert",
+    ],
+    "BuilderFn2": [
+        "Expand",
+        "Intersect",
+        "Less",
+        "LessEq",
+        "Lookup",
+        "More",
+        "MoreEq",
+        "Remove",
+        "Union",
+    ],
+    "BuilderVariable": [
+        "ItemCurrent",
+        "ItemsAlsoAddedToCartInSession",
+        "ItemsAlsoBoughtInSession",
+        "ItemsAlsoSeenInSession",
+        "ItemsInCart",
+        "ItemsRecommendedSessionCounter",
+        "ItemsSeenInSession",
+        "ItemsVisitedCounter",
     ],
     "StockState": [
         "BackOrder",
