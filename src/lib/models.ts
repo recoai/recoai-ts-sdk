@@ -1,6 +1,6 @@
 // To parse this data:
 //
-//   import { Convert, AddToCart, AddToList, APISettings, BuilderFn1, BuilderFn2, BuilderVariable, CategoryPageView, ChangeItemStockState, CheckoutStart, DetailProductView, HomePageView, ImageInteraction, RemoveItem, UpsertItem, ListView, OfflineRecommendationsRemove, OfflineRecommendationsUpsert, OtherInteraction, PageVisit, PlacementRemove, PlacementUpsert, PurchaseComplete, RankingModelTrainRequest, RateProduct, RecoRequest, RecoShow, RemoveFromCart, RemoveFromList, SearchItems, CartPageView, SmartSearchRequest, SmartSearchShow, SortItems, UnknownEvent } from "./file";
+//   import { Convert, AddToCart, AddToList, APISettings, BuilderFn1, BuilderFn2, BuilderVariable, CategoryPageView, ChangeItemStockState, CheckoutStart, DetailProductView, HomePageView, ImageInteraction, RemoveItem, UpsertItem, ListView, OfflineRecommendationsRemove, OfflineRecommendationsUpsert, OtherInteraction, PageVisit, PlacementRemove, PlacementStatistics, PlacementUpsert, PurchaseComplete, RankingModelTrainRequest, RateProduct, RecoRequest, RecoShow, RemoveFromCart, RemoveFromList, SearchItems, CartPageView, SmartSearchRequest, SmartSearchShow, SortItems, UnknownEvent } from "./file";
 //
 //   const addToCart = Convert.toAddToCart(json);
 //   const addToList = Convert.toAddToList(json);
@@ -23,6 +23,7 @@
 //   const otherInteraction = Convert.toOtherInteraction(json);
 //   const pageVisit = Convert.toPageVisit(json);
 //   const placementRemove = Convert.toPlacementRemove(json);
+//   const placementStatistics = Convert.toPlacementStatistics(json);
 //   const placementUpsert = Convert.toPlacementUpsert(json);
 //   const purchaseComplete = Convert.toPurchaseComplete(json);
 //   const rankingModelTrainRequest = Convert.toRankingModelTrainRequest(json);
@@ -525,6 +526,16 @@ export interface PlacementRemove {
     user_info:     UserInfo;
 }
 
+export interface PlacementStatistics {
+    loading_times_microseconds: { [key: string]: LIFOVecForUint128 };
+    placement_statistics:       { [key: string]: { [key: string]: number } };
+}
+
+export interface LIFOVecForUint128 {
+    base:     number[];
+    capacity: number;
+}
+
 export interface PlacementUpsert {
     event_detail?: null | EventDetail;
     event_time?:   number | null;
@@ -564,6 +575,7 @@ export enum GenericStrategyEnum {
     SimilarAttributes = "SimilarAttributes",
     SimilarImage = "SimilarImage",
     SimilarText = "SimilarText",
+    Unknown = "Unknown",
 }
 
 export interface GenericStrategyObject {
@@ -699,7 +711,7 @@ export interface ProductDetailsRecoShow {
     rec_id:                             string;
     score?:                             number | null;
     strategies_used?:                   Array<Array<number | GenericStrategyEnum | StrategiesUsedObject>> | null;
-    strategy_selected:                  string;
+    strategy_selected:                  GenericStrategyEnum | GenericStrategyObject;
     title:                              string;
     url_params?:                        null | string;
 }
@@ -1031,6 +1043,22 @@ export class Convert {
 
     public static placementRemoveToJson(value: PlacementRemove): any {
         return uncast(value, r("PlacementRemove"));
+    }
+
+    public static toPlacementStatistics(json: any): PlacementStatistics {
+        return cast(json, r("PlacementStatistics"));
+    }
+
+    public static placementStatisticsToJson(value: PlacementStatistics): any {
+        return uncast(value, r("PlacementStatistics"));
+    }
+
+    public static toLIFOVecForUint128(json: any): LIFOVecForUint128 {
+        return cast(json, r("LIFOVecForUint128"));
+    }
+
+    public static lIFOVecForUint128ToJson(value: LIFOVecForUint128): any {
+        return uncast(value, r("LIFOVecForUint128"));
     }
 
     public static toPlacementUpsert(json: any): PlacementUpsert {
@@ -1550,6 +1578,14 @@ const typeMap: any = {
         { json: "name", js: "name", typ: "" },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
+    "PlacementStatistics": o([
+        { json: "loading_times_microseconds", js: "loading_times_microseconds", typ: m(r("LIFOVecForUint128")) },
+        { json: "placement_statistics", js: "placement_statistics", typ: m(m(3.14)) },
+    ], "any"),
+    "LIFOVecForUint128": o([
+        { json: "base", js: "base", typ: a(0) },
+        { json: "capacity", js: "capacity", typ: 0 },
+    ], "any"),
     "PlacementUpsert": o([
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
         { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
@@ -1664,7 +1700,7 @@ const typeMap: any = {
         { json: "rec_id", js: "rec_id", typ: "" },
         { json: "score", js: "score", typ: u(undefined, u(3.14, null)) },
         { json: "strategies_used", js: "strategies_used", typ: u(undefined, u(a(a(u(3.14, r("GenericStrategyEnum"), r("StrategiesUsedObject")))), null)) },
-        { json: "strategy_selected", js: "strategy_selected", typ: "" },
+        { json: "strategy_selected", js: "strategy_selected", typ: u(r("GenericStrategyEnum"), r("GenericStrategyObject")) },
         { json: "title", js: "title", typ: "" },
         { json: "url_params", js: "url_params", typ: u(undefined, u(null, "")) },
     ], "any"),
@@ -2006,6 +2042,7 @@ const typeMap: any = {
         "SimilarAttributes",
         "SimilarImage",
         "SimilarText",
+        "Unknown",
     ],
     "XGBoostBoosterType": [
         "Dart",

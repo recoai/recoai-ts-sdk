@@ -9,7 +9,7 @@ import {
   UserInfo,
   LocationObject,
   Convert,
-  PrivacySetting
+  PrivacySetting,
 } from './models';
 
 Sqrl.filters.define('pln_currency', function (amount) {
@@ -17,8 +17,8 @@ Sqrl.filters.define('pln_currency', function (amount) {
 });
 
 export interface PlacementConfig {
-  // jquery selector
-  element_selector: string;
+  // jquery selector string or a function that returns a JQuery HTMLElement
+  element_selector: (() => JQuery<HTMLElement>) | string;
   // after, before
   inject_where: string;
   location: () => LocationEnum | LocationObject;
@@ -30,14 +30,28 @@ export interface PlacementConfig {
   url_prefix: string;
 }
 
-function injectRecommendations(config: PlacementConfig, data: RecoShow) {
+function getJQueryElementFromConfig(
+  config: PlacementConfig
+): JQuery<HTMLElement> {
+  if (typeof config.element_selector === 'function') {
+    return config.element_selector();
+  } else {
+    return $(config.element_selector);
+  }
+}
+
+function injectRecommendations(
+  element: JQuery<HTMLElement>,
+  config: PlacementConfig,
+  data: RecoShow
+) {
   var renderedHTML = Sqrl.render(config.template, data);
   if (config.inject_where === 'after') {
-    $(config.element_selector).after(renderedHTML);
+    element.after(renderedHTML);
   } else if (config.inject_where == 'append') {
-    $(config.element_selector).append(renderedHTML);
+    element.append(renderedHTML);
   } else if (config.inject_where == 'before') {
-    $(config.element_selector).before(renderedHTML);
+    element.before(renderedHTML);
   }
 }
 
@@ -52,7 +66,7 @@ function handlePlacement(apiSettings: APISettings, config: PlacementConfig) {
 
   var user_info: UserInfo = {
     visitor_id: getCustomerIdentifier(),
-    privacy_setting: <PrivacySetting>getCustomerPrivacySetting()
+    privacy_setting: <PrivacySetting>getCustomerPrivacySetting(),
   };
 
   var reco_request: RecoRequest = {
@@ -62,7 +76,7 @@ function handlePlacement(apiSettings: APISettings, config: PlacementConfig) {
     placement_name: config.name,
     user_info: user_info,
   };
-  var elementToInject = $(config.element_selector);
+  var elementToInject = getJQueryElementFromConfig(config);
 
   if (elementToInject.length == 1) {
     $.ajax({
@@ -80,7 +94,7 @@ function handlePlacement(apiSettings: APISettings, config: PlacementConfig) {
         if (recoShow.items.length > 0) {
           // make sure that we only show not more than n_items
           recoShow.items = recoShow.items.slice(0, config.n_items);
-          injectRecommendations(config, recoShow);
+          injectRecommendations(elementToInject, config, recoShow);
         }
       },
     });
