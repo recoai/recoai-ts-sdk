@@ -7,7 +7,7 @@ import {
   APISettings,
   LocationEnum,
   UserInfo,
-  LocationObject,
+  LocationClass,
   Convert,
   PrivacySetting,
 } from './models';
@@ -21,7 +21,7 @@ export interface PlacementConfig {
   element_selector: (() => JQuery<HTMLElement>) | string;
   // after, before
   inject_where: string;
-  location: () => LocationEnum | LocationObject;
+  location: () => LocationEnum | LocationClass;
   condition: () => boolean;
   n_items: number;
   name?: null | string;

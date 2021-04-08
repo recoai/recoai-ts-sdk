@@ -1,6 +1,6 @@
 // To parse this data:
 //
-//   import { Convert, AddToCart, AddToList, APISettings, BuilderFn1, BuilderFn2, BuilderVariable, CategoryPageView, ChangeItemStockState, CheckoutStart, DetailProductView, HomePageView, ImageInteraction, RemoveItem, UpsertItem, ListView, OfflineRecommendationsRemove, OfflineRecommendationsUpsert, OtherInteraction, PageVisit, PlacementRemove, PlacementStatistics, PlacementUpsert, PurchaseComplete, RankingModelTrainRequest, RateProduct, RecoRequest, RecoShow, RemoveFromCart, RemoveFromList, SearchItems, CartPageView, SmartSearchRequest, SmartSearchShow, SortItems, UnknownEvent } from "./file";
+//   import { Convert, AddToCart, AddToList, APISettings, BuilderFn1, BuilderFn2, BuilderVariable, CategoryPageView, ChangeItemStockState, CheckoutStart, DetailProductView, HomePageView, ImageInteraction, RemoveItem, UpsertItem, ListView, OfflineRecommendationsRemove, OfflineRecommendationsUpsert, OtherInteraction, PageVisit, PlacementRemove, PlacementStatisticsJSONReady, PlacementUpsert, PurchaseComplete, RankingModelTrainRequest, RateProduct, RecoRequest, RecoShow, RemoveFromCart, RemoveFromList, SearchItems, CartPageView, SmartSearchRequest, SmartSearchShow, SortItems, UnknownEvent } from "./file";
 //
 //   const addToCart = Convert.toAddToCart(json);
 //   const addToList = Convert.toAddToList(json);
@@ -23,7 +23,7 @@
 //   const otherInteraction = Convert.toOtherInteraction(json);
 //   const pageVisit = Convert.toPageVisit(json);
 //   const placementRemove = Convert.toPlacementRemove(json);
-//   const placementStatistics = Convert.toPlacementStatistics(json);
+//   const placementStatisticsJSONReady = Convert.toPlacementStatisticsJSONReady(json);
 //   const placementUpsert = Convert.toPlacementUpsert(json);
 //   const purchaseComplete = Convert.toPurchaseComplete(json);
 //   const rankingModelTrainRequest = Convert.toRankingModelTrainRequest(json);
@@ -480,8 +480,12 @@ export interface OfflineRecommendationsRemove {
     event_detail?: null | EventDetail;
     event_time?:   number | null;
     event_type:    EventType;
-    name:          OfflineRecommendationsTypeEnum | OfflineRecommendationsTypeObject;
+    name:          OfflineRecommendationsTypeClass | OfflineRecommendationsTypeEnum;
     user_info:     UserInfo;
+}
+
+export interface OfflineRecommendationsTypeClass {
+    OtherSimilarity: string;
 }
 
 export enum OfflineRecommendationsTypeEnum {
@@ -489,16 +493,12 @@ export enum OfflineRecommendationsTypeEnum {
     TextSimilarity = "TextSimilarity",
 }
 
-export interface OfflineRecommendationsTypeObject {
-    OtherSimilarity: string;
-}
-
 export interface OfflineRecommendationsUpsert {
     event_detail?: null | EventDetail;
     event_time?:   number | null;
     event_type:    EventType;
     matrix:        { [key: string]: { [key: string]: number } };
-    name:          OfflineRecommendationsTypeEnum | OfflineRecommendationsTypeObject;
+    name:          OfflineRecommendationsTypeClass | OfflineRecommendationsTypeEnum;
     user_info:     UserInfo;
 }
 
@@ -526,37 +526,18 @@ export interface PlacementRemove {
     user_info:     UserInfo;
 }
 
-export interface PlacementStatistics {
+/**
+ * Json safe version of PlacementStatistics, unfortunately serde_with doesn't work because
+ * of conflicts with JsonSchema
+ */
+export interface PlacementStatisticsJSONReady {
     loading_times_microseconds: { [key: string]: LIFOVecForUint128 };
-    placement_statistics:       { [key: string]: { [key: string]: number } };
+    placements_statistics:      { [key: string]: Array<Array<GenericStrategyEnum | SuccessTries>> };
 }
 
 export interface LIFOVecForUint128 {
     base:     number[];
     capacity: number;
-}
-
-export interface PlacementUpsert {
-    event_detail?: null | EventDetail;
-    event_time?:   number | null;
-    event_type:    EventType;
-    name:          string;
-    ranking:       RankingStrategy;
-    strategies:    WeightedGenericCandidateRec[];
-    url_params?:   { [key: string]: string } | null;
-    user_info:     UserInfo;
-}
-
-export enum RankingStrategy {
-    DirichletSampling = "DirichletSampling",
-    RankingModel = "RankingModel",
-    ThomsponSampling = "ThomsponSampling",
-    WeightedSample = "WeightedSample",
-}
-
-export interface WeightedGenericCandidateRec {
-    strategy: GenericStrategyEnum | GenericStrategyObject;
-    weight:   number;
 }
 
 export enum GenericStrategyEnum {
@@ -573,14 +554,41 @@ export enum GenericStrategyEnum {
     SeenInSessionCoccurAddedToCart = "SeenInSessionCoccurAddedToCart",
     SeenInSessionCoccurSeen = "SeenInSessionCoccurSeen",
     SimilarAttributes = "SimilarAttributes",
-    SimilarImage = "SimilarImage",
-    SimilarText = "SimilarText",
     Unknown = "Unknown",
 }
 
-export interface GenericStrategyObject {
-    SimilarOffline?:  string;
-    Query?:           string;
+export interface SuccessTries {
+    SimilarOffline?:  OfflineRecommendationsTypeClass | OfflineRecommendationsTypeEnum;
+    StrategyBuilder?: string;
+    n_impressions?:   number;
+    n_success?:       number;
+}
+
+export interface PlacementUpsert {
+    event_detail?: null | EventDetail;
+    event_time?:   number | null;
+    event_type:    EventType;
+    name:          string;
+    ranking:       RankingStrategy;
+    strategies:    WeightedGenericCandidateRec[];
+    url_params?:   { [key: string]: string } | null;
+    user_info:     UserInfo;
+}
+
+export enum RankingStrategy {
+    DirichletSampling = "DirichletSampling",
+    RankingModel = "RankingModel",
+    ThompsonSampling = "ThompsonSampling",
+    WeightedSample = "WeightedSample",
+}
+
+export interface WeightedGenericCandidateRec {
+    strategy: GenericStrategyClass | GenericStrategyEnum;
+    weight:   number[] | number;
+}
+
+export interface GenericStrategyClass {
+    SimilarOffline?:  OfflineRecommendationsTypeClass | OfflineRecommendationsTypeEnum;
     StrategyBuilder?: string;
 }
 
@@ -657,18 +665,13 @@ export interface RecoRequest {
     event_detail?:          null | EventDetail;
     event_time?:            number | null;
     event_type:             EventType;
-    location:               LocationEnum | LocationObject;
+    location:               LocationClass | LocationEnum;
     n_items:                number;
     placement_name?:        null | string;
     user_info:              UserInfo;
 }
 
-export enum LocationEnum {
-    Error404 = "Error404",
-    HomePage = "HomePage",
-}
-
-export interface LocationObject {
+export interface LocationClass {
     ProductPage?:  string;
     AddToCart?:    string;
     CategoryPage?: string[];
@@ -687,6 +690,11 @@ export interface SearchInfo {
     query?: null | string;
 }
 
+export enum LocationEnum {
+    Error404 = "Error404",
+    HomePage = "HomePage",
+}
+
 export interface RecoShow {
     additional_uri_params?: { [key: string]: string } | null;
     event_detail?:          null | EventDetail;
@@ -694,7 +702,7 @@ export interface RecoShow {
     event_type:             EventType;
     experiment_id?:         null | string;
     items:                  ProductDetailsRecoShow[];
-    location:               LocationEnum | LocationObject;
+    location:               LocationClass | LocationEnum;
     placement_name?:        null | string;
     user_info:              UserInfo;
 }
@@ -710,15 +718,14 @@ export interface ProductDetailsRecoShow {
     product_code:                       string;
     rec_id:                             string;
     score?:                             number | null;
-    strategies_used?:                   Array<Array<number | GenericStrategyEnum | StrategiesUsedObject>> | null;
-    strategy_selected:                  GenericStrategyEnum | GenericStrategyObject;
+    strategies_used?:                   Array<Array<StrategiesUsedClass | number | GenericStrategyEnum>> | null;
+    strategy_selected:                  GenericStrategyClass | GenericStrategyEnum;
     title:                              string;
     url_params?:                        null | string;
 }
 
-export interface StrategiesUsedObject {
-    SimilarOffline?:  string;
-    Query?:           string;
+export interface StrategiesUsedClass {
+    SimilarOffline?:  OfflineRecommendationsTypeClass | OfflineRecommendationsTypeEnum;
     StrategyBuilder?: string;
 }
 
@@ -1005,12 +1012,12 @@ export class Convert {
         return uncast(value, r("OfflineRecommendationsRemove"));
     }
 
-    public static toOfflineRecommendationsTypeObject(json: any): OfflineRecommendationsTypeObject {
-        return cast(json, r("OfflineRecommendationsTypeObject"));
+    public static toOfflineRecommendationsTypeClass(json: any): OfflineRecommendationsTypeClass {
+        return cast(json, r("OfflineRecommendationsTypeClass"));
     }
 
-    public static offlineRecommendationsTypeObjectToJson(value: OfflineRecommendationsTypeObject): any {
-        return uncast(value, r("OfflineRecommendationsTypeObject"));
+    public static offlineRecommendationsTypeClassToJson(value: OfflineRecommendationsTypeClass): any {
+        return uncast(value, r("OfflineRecommendationsTypeClass"));
     }
 
     public static toOfflineRecommendationsUpsert(json: any): OfflineRecommendationsUpsert {
@@ -1045,12 +1052,12 @@ export class Convert {
         return uncast(value, r("PlacementRemove"));
     }
 
-    public static toPlacementStatistics(json: any): PlacementStatistics {
-        return cast(json, r("PlacementStatistics"));
+    public static toPlacementStatisticsJSONReady(json: any): PlacementStatisticsJSONReady {
+        return cast(json, r("PlacementStatisticsJSONReady"));
     }
 
-    public static placementStatisticsToJson(value: PlacementStatistics): any {
-        return uncast(value, r("PlacementStatistics"));
+    public static placementStatisticsJSONReadyToJson(value: PlacementStatisticsJSONReady): any {
+        return uncast(value, r("PlacementStatisticsJSONReady"));
     }
 
     public static toLIFOVecForUint128(json: any): LIFOVecForUint128 {
@@ -1059,6 +1066,14 @@ export class Convert {
 
     public static lIFOVecForUint128ToJson(value: LIFOVecForUint128): any {
         return uncast(value, r("LIFOVecForUint128"));
+    }
+
+    public static toSuccessTries(json: any): SuccessTries {
+        return cast(json, r("SuccessTries"));
+    }
+
+    public static successTriesToJson(value: SuccessTries): any {
+        return uncast(value, r("SuccessTries"));
     }
 
     public static toPlacementUpsert(json: any): PlacementUpsert {
@@ -1077,12 +1092,12 @@ export class Convert {
         return uncast(value, r("WeightedGenericCandidateRec"));
     }
 
-    public static toGenericStrategyObject(json: any): GenericStrategyObject {
-        return cast(json, r("GenericStrategyObject"));
+    public static toGenericStrategyClass(json: any): GenericStrategyClass {
+        return cast(json, r("GenericStrategyClass"));
     }
 
-    public static genericStrategyObjectToJson(value: GenericStrategyObject): any {
-        return uncast(value, r("GenericStrategyObject"));
+    public static genericStrategyClassToJson(value: GenericStrategyClass): any {
+        return uncast(value, r("GenericStrategyClass"));
     }
 
     public static toPurchaseComplete(json: any): PurchaseComplete {
@@ -1133,12 +1148,12 @@ export class Convert {
         return uncast(value, r("RecoRequest"));
     }
 
-    public static toLocationObject(json: any): LocationObject {
-        return cast(json, r("LocationObject"));
+    public static toLocationClass(json: any): LocationClass {
+        return cast(json, r("LocationClass"));
     }
 
-    public static locationObjectToJson(value: LocationObject): any {
-        return uncast(value, r("LocationObject"));
+    public static locationClassToJson(value: LocationClass): any {
+        return uncast(value, r("LocationClass"));
     }
 
     public static toPageInfo(json: any): PageInfo {
@@ -1173,12 +1188,12 @@ export class Convert {
         return uncast(value, r("ProductDetailsRecoShow"));
     }
 
-    public static toStrategiesUsedObject(json: any): StrategiesUsedObject {
-        return cast(json, r("StrategiesUsedObject"));
+    public static toStrategiesUsedClass(json: any): StrategiesUsedClass {
+        return cast(json, r("StrategiesUsedClass"));
     }
 
-    public static strategiesUsedObjectToJson(value: StrategiesUsedObject): any {
-        return uncast(value, r("StrategiesUsedObject"));
+    public static strategiesUsedClassToJson(value: StrategiesUsedClass): any {
+        return uncast(value, r("StrategiesUsedClass"));
     }
 
     public static toRemoveFromCart(json: any): RemoveFromCart {
@@ -1543,18 +1558,18 @@ const typeMap: any = {
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
         { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
-        { json: "name", js: "name", typ: u(r("OfflineRecommendationsTypeEnum"), r("OfflineRecommendationsTypeObject")) },
+        { json: "name", js: "name", typ: u(r("OfflineRecommendationsTypeClass"), r("OfflineRecommendationsTypeEnum")) },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
-    "OfflineRecommendationsTypeObject": o([
+    "OfflineRecommendationsTypeClass": o([
         { json: "OtherSimilarity", js: "OtherSimilarity", typ: "" },
-    ], "any"),
+    ], false),
     "OfflineRecommendationsUpsert": o([
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
         { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "matrix", js: "matrix", typ: m(m(0)) },
-        { json: "name", js: "name", typ: u(r("OfflineRecommendationsTypeEnum"), r("OfflineRecommendationsTypeObject")) },
+        { json: "name", js: "name", typ: u(r("OfflineRecommendationsTypeClass"), r("OfflineRecommendationsTypeEnum")) },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
     "OtherInteraction": o([
@@ -1578,13 +1593,19 @@ const typeMap: any = {
         { json: "name", js: "name", typ: "" },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
-    "PlacementStatistics": o([
+    "PlacementStatisticsJSONReady": o([
         { json: "loading_times_microseconds", js: "loading_times_microseconds", typ: m(r("LIFOVecForUint128")) },
-        { json: "placement_statistics", js: "placement_statistics", typ: m(m(3.14)) },
+        { json: "placements_statistics", js: "placements_statistics", typ: m(a(a(u(r("GenericStrategyEnum"), r("SuccessTries"))))) },
     ], "any"),
     "LIFOVecForUint128": o([
         { json: "base", js: "base", typ: a(0) },
         { json: "capacity", js: "capacity", typ: 0 },
+    ], "any"),
+    "SuccessTries": o([
+        { json: "SimilarOffline", js: "SimilarOffline", typ: u(undefined, u(r("OfflineRecommendationsTypeClass"), r("OfflineRecommendationsTypeEnum"))) },
+        { json: "StrategyBuilder", js: "StrategyBuilder", typ: u(undefined, "") },
+        { json: "n_impressions", js: "n_impressions", typ: u(undefined, 0) },
+        { json: "n_success", js: "n_success", typ: u(undefined, 0) },
     ], "any"),
     "PlacementUpsert": o([
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
@@ -1597,14 +1618,13 @@ const typeMap: any = {
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
     "WeightedGenericCandidateRec": o([
-        { json: "strategy", js: "strategy", typ: u(r("GenericStrategyEnum"), r("GenericStrategyObject")) },
-        { json: "weight", js: "weight", typ: 3.14 },
+        { json: "strategy", js: "strategy", typ: u(r("GenericStrategyClass"), r("GenericStrategyEnum")) },
+        { json: "weight", js: "weight", typ: u(a(3.14), 3.14) },
     ], "any"),
-    "GenericStrategyObject": o([
-        { json: "SimilarOffline", js: "SimilarOffline", typ: u(undefined, "") },
-        { json: "Query", js: "Query", typ: u(undefined, "") },
+    "GenericStrategyClass": o([
+        { json: "SimilarOffline", js: "SimilarOffline", typ: u(undefined, u(r("OfflineRecommendationsTypeClass"), r("OfflineRecommendationsTypeEnum"))) },
         { json: "StrategyBuilder", js: "StrategyBuilder", typ: u(undefined, "") },
-    ], "any"),
+    ], false),
     "PurchaseComplete": o([
         { json: "cart_id", js: "cart_id", typ: u(undefined, u(null, "")) },
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
@@ -1623,7 +1643,7 @@ const typeMap: any = {
     ], "any"),
     "RankingModel": o([
         { json: "XGBoost", js: "XGBoost", typ: r("XGBoostParams") },
-    ], "any"),
+    ], false),
     "XGBoostParams": o([
         { json: "boost_rounds", js: "boost_rounds", typ: 0 },
         { json: "booster_type", js: "booster_type", typ: r("XGBoostBoosterType") },
@@ -1656,12 +1676,12 @@ const typeMap: any = {
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
         { json: "event_time", js: "event_time", typ: u(undefined, u(0, null)) },
         { json: "event_type", js: "event_type", typ: r("EventType") },
-        { json: "location", js: "location", typ: u(r("LocationEnum"), r("LocationObject")) },
+        { json: "location", js: "location", typ: u(r("LocationClass"), r("LocationEnum")) },
         { json: "n_items", js: "n_items", typ: 0 },
         { json: "placement_name", js: "placement_name", typ: u(undefined, u(null, "")) },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
-    "LocationObject": o([
+    "LocationClass": o([
         { json: "ProductPage", js: "ProductPage", typ: u(undefined, "") },
         { json: "AddToCart", js: "AddToCart", typ: u(undefined, "") },
         { json: "CategoryPage", js: "CategoryPage", typ: u(undefined, a("")) },
@@ -1669,7 +1689,7 @@ const typeMap: any = {
         { json: "CheckoutPage", js: "CheckoutPage", typ: u(undefined, a("")) },
         { json: "OtherPage", js: "OtherPage", typ: u(undefined, r("PageInfo")) },
         { json: "UnknownPage", js: "UnknownPage", typ: u(undefined, r("PageInfo")) },
-    ], "any"),
+    ], false),
     "PageInfo": o([
         { json: "content", js: "content", typ: u(undefined, u(null, "")) },
         { json: "url", js: "url", typ: u(undefined, u(null, "")) },
@@ -1684,7 +1704,7 @@ const typeMap: any = {
         { json: "event_type", js: "event_type", typ: r("EventType") },
         { json: "experiment_id", js: "experiment_id", typ: u(undefined, u(null, "")) },
         { json: "items", js: "items", typ: a(r("ProductDetailsRecoShow")) },
-        { json: "location", js: "location", typ: u(r("LocationEnum"), r("LocationObject")) },
+        { json: "location", js: "location", typ: u(r("LocationClass"), r("LocationEnum")) },
         { json: "placement_name", js: "placement_name", typ: u(undefined, u(null, "")) },
         { json: "user_info", js: "user_info", typ: r("UserInfo") },
     ], "any"),
@@ -1699,16 +1719,15 @@ const typeMap: any = {
         { json: "product_code", js: "product_code", typ: "" },
         { json: "rec_id", js: "rec_id", typ: "" },
         { json: "score", js: "score", typ: u(undefined, u(3.14, null)) },
-        { json: "strategies_used", js: "strategies_used", typ: u(undefined, u(a(a(u(3.14, r("GenericStrategyEnum"), r("StrategiesUsedObject")))), null)) },
-        { json: "strategy_selected", js: "strategy_selected", typ: u(r("GenericStrategyEnum"), r("GenericStrategyObject")) },
+        { json: "strategies_used", js: "strategies_used", typ: u(undefined, u(a(a(u(r("StrategiesUsedClass"), 3.14, r("GenericStrategyEnum")))), null)) },
+        { json: "strategy_selected", js: "strategy_selected", typ: u(r("GenericStrategyClass"), r("GenericStrategyEnum")) },
         { json: "title", js: "title", typ: "" },
         { json: "url_params", js: "url_params", typ: u(undefined, u(null, "")) },
     ], "any"),
-    "StrategiesUsedObject": o([
-        { json: "SimilarOffline", js: "SimilarOffline", typ: u(undefined, "") },
-        { json: "Query", js: "Query", typ: u(undefined, "") },
+    "StrategiesUsedClass": o([
+        { json: "SimilarOffline", js: "SimilarOffline", typ: u(undefined, u(r("OfflineRecommendationsTypeClass"), r("OfflineRecommendationsTypeEnum"))) },
         { json: "StrategyBuilder", js: "StrategyBuilder", typ: u(undefined, "") },
-    ], "any"),
+    ], false),
     "RemoveFromCart": o([
         { json: "cart_id", js: "cart_id", typ: u(undefined, u(null, "")) },
         { json: "event_detail", js: "event_detail", typ: u(undefined, u(null, r("EventDetail"))) },
@@ -2020,12 +2039,6 @@ const typeMap: any = {
         "ImageSimilarity",
         "TextSimilarity",
     ],
-    "RankingStrategy": [
-        "DirichletSampling",
-        "RankingModel",
-        "ThomsponSampling",
-        "WeightedSample",
-    ],
     "GenericStrategyEnum": [
         "AlsoAddedToCart",
         "AlsoPurchased",
@@ -2040,9 +2053,13 @@ const typeMap: any = {
         "SeenInSessionCoccurAddedToCart",
         "SeenInSessionCoccurSeen",
         "SimilarAttributes",
-        "SimilarImage",
-        "SimilarText",
         "Unknown",
+    ],
+    "RankingStrategy": [
+        "DirichletSampling",
+        "RankingModel",
+        "ThompsonSampling",
+        "WeightedSample",
     ],
     "XGBoostBoosterType": [
         "Dart",
